@@ -4,8 +4,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="/topcodes/libs/topcodes.jar"/>
 	<classpathentry kind="lib" path="/processingLibs/libs/core.jar"/>
-	<classpathentry kind="lib" path="/Users/david/repos/tiles/eclipse/processingLibs/libs/video/video.jar"/>
-	<classpathentry kind="lib" path="/Users/david/repos/tiles/eclipse/processingLibs/libs/video/gstreamer-java.jar"/>
-	<classpathentry kind="lib" path="/Users/david/repos/tiles/eclipse/processingLibs/libs/video/jna.jar"/>
+	<classpathentry kind="lib" path="/processingLibs/libs/video/video.jar"/>
+	<classpathentry kind="lib" path="/processingLibs/libs/video/jna.jar"/>
+	<classpathentry kind="lib" path="/processingLibs/libs/video/gstreamer-java.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
