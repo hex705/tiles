@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move 5 elements(s) to &apos;video&apos;&#x0A;- Original project: &apos;processingLibs&apos;&#x0A;- Destination element: &apos;video&apos;&#x0A;- Original elements:&#x0A;     jna.jar&#x0A;     video.jar&#x0A;     gstreamer-java.jar&#x0A;     macosx64&#x0A;     macosx32&#x0A;- Update references to refactored element" description="Move elements" element1="libs/jna.jar" element2="libs/video.jar" element3="libs/gstreamer-java.jar" element4="libs/macosx64" element5="libs/macosx32" files="3" flags="589830" folders="2" id="org.eclipse.jdt.ui.move" policy="org.eclipse.jdt.ui.moveResources" qualified="false" references="true" stamp="1368205612641" target="libs/video" units="0" version="1.0"/>
+</session>

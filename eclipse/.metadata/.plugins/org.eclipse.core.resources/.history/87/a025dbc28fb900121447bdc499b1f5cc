@@ -1,0 +1,8 @@
+
+public class Template extends PApplet {
+
+	
+	public static void main(String[] args) {
+		
+	}
+}

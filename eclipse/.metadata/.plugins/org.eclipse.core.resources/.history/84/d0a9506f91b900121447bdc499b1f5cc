@@ -1,0 +1,18 @@
+import processing.core.*;
+
+@SuppressWarnings("serial")
+public class Template extends PApplet {
+
+	public void setup() {
+		size(640, 480);
+		
+	}
+	
+	public void draw() {
+		
+	}
+	
+	public static void main(String args[]) {
+		PApplet.main(new String[] { "Template" });
+	}
+}
