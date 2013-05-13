@@ -1,0 +1,10 @@
+Use this folder as your Eclipse workspace.
+
+You will have to "Import" --> "Existing Projects into Workspace" at first.  Select this
+folder in the dialog box, and check all the projects that come up. 
+
+/processingLibs contains the Processing core and video libraries 
+/topcodes contains the desktop version of the TopCode library 
+
+/template is an example program, setup to use the .jar files in the folders above
+
