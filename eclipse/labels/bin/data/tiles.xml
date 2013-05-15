@@ -3,17 +3,17 @@
 
 	<tile topcodeID="47">
 		<name>Serial</name>
-		<connections L="1" R="2" />
+		<connections W="1" E="2" />
 	</tile>
 	
 	<tile topcodeID="55">
 		<name>FTDI connector</name>
-		<connections L="2" R="3" />
+		<connections W="2" E="3" />
 	</tile>
 	
 	<tile topcodeID="61">
 		<name>Scissors and Glue Arduino</name>
-		<connections L="3" R="3" />
+		<connections W="3" E="3" />
 	</tile>
 	
 </tiles>
