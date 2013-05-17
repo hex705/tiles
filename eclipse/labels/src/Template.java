@@ -2,22 +2,37 @@ import java.util.List;
 
 import processing.core.*;
 import processing.data.XML;
+import processing.video.Capture;
+import topcodes.*;
 
 @SuppressWarnings("serial")
 public class Template extends PApplet {
 
 	XML xml;
+	Capture cam;
+	Scanner scanner;
 
+	int[] topcodeIDs;
+	String[] topcodeNames;
+
+	@SuppressWarnings("unused")
 	public void setup() {
-
+		// xml stuff
 		xml = loadXML("tiles.xml");
 		XML[] children = xml.getChildren("tile");
+
+		// arrays to read data from, later
+		topcodeIDs = new int[children.length];
+		topcodeNames = new String[children.length];
 
 		for (int i = 0; i < children.length; i++) {
 			int[] connections = new int[4];
 
 			int id = children[i].getInt("topcodeID");
 			String name = children[i].getChild("name").getContent();
+
+			topcodeIDs[i] = id;
+			topcodeNames[i] = name;
 
 			// connections are in order: TRBL
 			connections[0] = children[i].getChild("connections").getInt("T");
@@ -28,6 +43,56 @@ public class Template extends PApplet {
 			println(id + " " + name + "  { L" + connections[3] + "; R"
 					+ connections[1] + "; T" + connections[0] + "; B"
 					+ connections[2] + " }");
+		}
+
+		// camera stuff
+		size(640, 480);
+		String[] cameras = Capture.list();
+		cam = new Capture(this, cameras[0]);
+		cam.start();
+
+		scanner = new Scanner();
+	}
+
+	public void draw() {
+		if (cam.available()) {
+			// Reads the new frame
+			cam.read();
+
+			// We need a copy -- the scanner modifies the image
+			int[] pixels = new int[cam.pixels.length];
+			System.arraycopy(cam.pixels, 0, pixels, 0, cam.pixels.length);
+
+			// Do the work
+			List<TopCode> codes = scanner.scan(pixels, cam.width, cam.height);
+
+			// show the results
+			// println("Codes found: " + codes.size());
+			image(cam, 0, 0);
+			rectMode(CENTER);
+
+			for (TopCode code : codes) {
+				String tileName = "";
+
+				int thisCode = code.getCode();
+				for (int i = 0; i < topcodeIDs.length; i++) {
+					if (thisCode == topcodeIDs[i]) {
+						tileName = topcodeIDs[i] + " " + topcodeNames[i];
+						println(tileName);
+					} else {
+						tileName = str(code.getCode());
+					}
+
+				pushMatrix();
+				stroke(0, 255, 0);
+				noFill();
+				translate(code.getCenterX(), code.getCenterY());
+				text(tileName, 0, 0);
+				rotate(code.getOrientation());
+				rect(0, 0, code.getDiameter(), code.getDiameter());
+				popMatrix();
+				}
+			}
 		}
 	}
 
