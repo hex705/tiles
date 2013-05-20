@@ -18,7 +18,7 @@ public class Template extends PApplet {
 	@SuppressWarnings("unused")
 	public void setup() {
 		// xml stuff
-		xml = loadXML("tiles.xml");
+		xml = loadXML("tileset.xml");
 		XML[] children = xml.getChildren("tile");
 
 		// arrays to read data from, later
