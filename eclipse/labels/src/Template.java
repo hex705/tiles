@@ -1,38 +1,34 @@
 import java.util.List;
 
 import processing.core.*;
-import processing.data.XML;
+import processing.data.*;
 import processing.video.Capture;
 import topcodes.*;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({ "unused", "serial" })
 public class Template extends PApplet {
 
 	XML xml;
 	Capture cam;
 	Scanner scanner;
 
-	int[] topcodeIDs;
-	String[] topcodeNames;
+	//array for all the data from tileset.xml
+	Tile[] tileset;
 
-	@SuppressWarnings("unused")
 	public void setup() {
 		// xml stuff
 		xml = loadXML("tileset.xml");
 		XML[] children = xml.getChildren("tile");
-
-		// arrays to read data from, later
-		topcodeIDs = new int[children.length];
-		topcodeNames = new String[children.length];
-
+		
+		tileset = new Tile[children.length];
+				
 		for (int i = 0; i < children.length; i++) {
+			String topcodeID;
+			String topcodeName;
 			int[] connections = new int[4];
 
 			int id = children[i].getInt("topcodeID");
 			String name = children[i].getChild("name").getContent();
-
-			topcodeIDs[i] = id;
-			topcodeNames[i] = name;
 
 			// connections are in order: TRBL
 			connections[0] = children[i].getChild("connections").getInt("T");
@@ -40,9 +36,16 @@ public class Template extends PApplet {
 			connections[2] = children[i].getChild("connections").getInt("B");
 			connections[3] = children[i].getChild("connections").getInt("L");
 
-			println(id + " " + name + "  { L" + connections[3] + "; R"
-					+ connections[1] + "; T" + connections[0] + "; B"
-					+ connections[2] + " }");
+			//println(id + " " + name + "  { L" + connections[3] + "; R"
+			//		+ connections[1] + "; T" + connections[0] + "; B"
+			//		+ connections[2] + " }");
+			// pass all data to appropriate tile object
+			tileset[i] = new Tile (id, name, connections[0], connections[1], connections[2], connections[3]);
+		}
+		for (int i = 0; i < tileset.length; i ++) {
+			println (tileset[i].topcodeID + " " + tileset[i].topcodeName + "  { L" + tileset[i].connections[3] + "; R"
+					+ tileset[i].connections[1] + "; T" + tileset[i].connections[0] + "; B"
+					+ tileset[i].connections[2] + " }");
 		}
 
 		// camera stuff
@@ -75,12 +78,13 @@ public class Template extends PApplet {
 				String tileName = "";
 
 				int thisCode = code.getCode();
-				for (int i = 0; i < topcodeIDs.length; i++) {
-					if (thisCode == topcodeIDs[i]) {
-						tileName = topcodeIDs[i] + " " + topcodeNames[i];
+				for (int i = 0; i < tileset.length; i++) {
+					if (thisCode == tileset[i].topcodeID) {
+						tileName = tileset[i].topcodeID + " " + tileset[i].topcodeName;
 						println(tileName);
 					} else {
 						tileName = str(code.getCode());
+						println(tileName + " no name found");
 					}
 
 				pushMatrix();
@@ -93,6 +97,24 @@ public class Template extends PApplet {
 				popMatrix();
 				}
 			}
+		}
+	}
+	
+	public class Tile {
+		int[] connections;
+		int topcodeID;
+		String topcodeName;
+		
+		Tile(int _topcodeID, String _topcodeName, int c0, int c1, int c2, int c3) {
+			connections = new int[4];
+			topcodeID = _topcodeID;
+			topcodeName = _topcodeName;
+	
+			// connections are in order: TRBL
+			connections[0] = c0;
+			connections[1] = c1;
+			connections[2] = c2;
+			connections[3] = c3;
 		}
 	}
 
