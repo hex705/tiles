@@ -1,0 +1,67 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x100035e0, pid=2628, tid=780
+#
+# JRE version: 7.0_17-b02
+# Java VM: Java HotSpot(TM) Client VM (23.7-b01 mixed mode, sharing windows-x86 )
+# Problematic frame:
+# C  0x100035e0
+#
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.sun.com/bugreport/crash.jsp
+# The crash happened outside the Java Virtual Machine in native code.
+# See problematic frame for where to report the bug.
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x01341c00):  JavaThread "Finalizer" daemon [_thread_in_native, id=780, stack(0x03570000,0x035c0000)]
+
+siginfo: ExceptionCode=0xc0000005, ExceptionInformation=0x00000008 0x100035e0
+
+Registers:
+EAX=0x100035e0, EBX=0x3372b588, ECX=0x01341d28, EDX=0x33765ba8
+ESP=0x035bf52c, EBP=0x035bf560, ESI=0x3372b588, EDI=0x01341c00
+EIP=0x100035e0, EFLAGS=0x00010283
+
+Top of Stack: (sp=0x035bf52c)
+0x035bf52c:   013fa717 01341d28 035bf568 06cd2ac0
+0x035bf53c:   00000000 035bf540 00000000 035bf574
+0x035bf54c:   33765ba8 00000000 3372b588 00000000
+0x035bf55c:   035bf570 035bf598 013f32c7 28bfbcc0
+0x035bf56c:   013f8989 06cd2ac0 00000000 035bf578
+0x035bf57c:   337295ec 035bf5a0 33765ba8 00000000
+0x035bf58c:   33729610 035bf570 035bf5a0 035bf5c0
+0x035bf59c:   013f03d7 23b62440 035bf5f4 035bf5d0 
+
+Instructions: (pc=0x100035e0)
+0x100035c0:   
+[error occurred during error reporting (printing registers, top of stack, instructions near pc), id 0xc0000005]
+
+Register to memory mapping:
+
+EAX=0x100035e0 is an unknown value
+EBX=0x3372b588 is an oop
+{method} 
+ - klass: {other class}
+ECX=0x01341d28 is an unknown value
+EDX=0x33765ba8 is an oop
+{constant pool cache} 
+ - klass: {other class}
+ESP=0x035bf52c is pointing into the stack for thread: 0x01341c00
+EBP=0x035bf560 is pointing into the stack for thread: 0x01341c00
+ESI=0x3372b588 is an oop
+{method} 
+ - klass: {other class}
+EDI=0x01341c00 is a thread
+
+
+Stack: [0x03570000,0x035c0000],  sp=0x035bf52c,  free space=317k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  0x100035e0
+j  com.sun.jna.Memory.finalize()V+4
+v  ~StubRoutines::call_stub
+V
