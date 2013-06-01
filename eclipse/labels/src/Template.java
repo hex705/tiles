@@ -1,5 +1,4 @@
 import java.util.List;
-
 import processing.core.*;
 import processing.data.*;
 import processing.video.Capture;
@@ -75,7 +74,7 @@ public class Template extends PApplet {
 			rectMode(CENTER);
 
 			for (TopCode code : codes) {
-				String tileName = "";
+				String tileName;
 
 				int thisCode = code.getCode();
 				for (int i = 0; i < tileset.length; i++) {
