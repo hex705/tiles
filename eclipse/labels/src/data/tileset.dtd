@@ -1,6 +1,7 @@
 <!ELEMENT tileset (tile*)>
 <!ELEMENT tile (name, connections)>
 <!ATTLIST tile topcodeID CDATA #REQUIRED>
+<!ATTLIST tile type CDATA>
 <!ELEMENT name (#PCDATA)>
 <!ELEMENT connections EMPTY>
 <!ATTLIST connections L (0|1|2|3|4|5|6) "0">
