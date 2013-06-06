@@ -3,35 +3,39 @@
 <tileset>
 	<tile topcodeID="47">
 		<name>Serial</name>
-		<connections L="1" R="2" />
+		<connections L="1" R="3" />
 	</tile>	
 	<tile topcodeID="55">
-		<name>FTDI connector</name>
-		<connections L="2" R="3" />
+		<name>Internet (Processing)</name>
+		<connections L="1" R="5" />
 	</tile>	
 	<tile topcodeID="61">
-		<name>Scissors and Glue Arduino</name>
-		<connections L="3" R="3" />
+		<name>Internet (Shield)</name>
+		<connections R="5" T="2" B="2" />
+	</tile>	
+	<tile topcodeID="79">
+		<name>Wifi</name>
+		<connections R="5" T="2" B="2" />
 	</tile>	
 	<tile topcodeID="93">
-		<name>X-bee</name>
-		<connections L="3" R="2" />
+		<name>Ethernet</name>
+		<connections R="5" T="2" B="2" />
 	</tile>	
 	<tile topcodeID="121">
 		<name>Arduino</name>
-		<connections L="4" R="3" />
+		<connections R="3" B="2" />
 	</tile>	
 	<tile topcodeID="167">
-		<name>Processing TCP/IP</name>
-		<connections L="5" R="1" />
+		<name>X-Bee Shield</name>
+		<connections L="3" R="4" T="2" B="2"/>
 	</tile>	
 	<tile topcodeID="185">
-		<name>Processing OSC</name>
-		<connections L="6" R="1" />
+		<name>X-Bee Explorer</name>
+		<connections L="3" R="4" />
 	</tile>	
 	<tile topcodeID="213">
-		<name>Scissors and Glue Processing</name>
-		<connections L="1" R="1" />
+		<name>X-Bee Breakout</name>
+		<connections L="3" R="4" />
 	</tile>	
 	<tile topcodeID="339">
 		<name>Processing</name>
