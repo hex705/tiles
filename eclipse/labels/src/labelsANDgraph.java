@@ -27,6 +27,9 @@ public class labelsANDgraph extends PApplet {
 	//array for all the data from tileset.xml
 	Tile[] tileset;
 	
+	//array for all the tiles that are in the captured image
+	Tile[] present_tiles;
+	
 
 	//JGraphT stuff
 	SimpleGraph<Tile, DefaultEdge> tileGraph;
@@ -38,6 +41,7 @@ public class labelsANDgraph extends PApplet {
 		XML[] children = xml.getChildren("tile");
 		
 		tileset = new Tile[children.length];
+		present_tiles = new Tile[0];
 				
 		for (int i = 0; i < children.length; i++) {
 			String topcodeID;
@@ -62,7 +66,7 @@ public class labelsANDgraph extends PApplet {
 		for (int i = 0; i < tileset.length; i ++) {
 			println (tileset[i].topcodeID + " " + tileset[i].topcodeName + "  { L" + tileset[i].connections[3] + "; R"
 					+ tileset[i].connections[1] + "; T" + tileset[i].connections[0] + "; B"
-					+ tileset[i].connections[2] + " }");
+					+ tileset[i].connections[2] + " }"); //print every available tile that is defined in tileset.xml
 		}
 
 		// camera stuff
@@ -75,15 +79,7 @@ public class labelsANDgraph extends PApplet {
 		
 		// new JGraphT stuff
 		tileGraph = new SimpleGraph<Tile, DefaultEdge>(DefaultEdge.class);
-		
-		// sample vertices and edges (for testing)
-		tileGraph.addVertex(tileset[0]);
-		tileGraph.addVertex(tileset[1]);
-		tileGraph.addVertex(tileset[2]);
-		
-		tileGraph.addEdge(tileset[0], tileset[1]);
-		tileGraph.addEdge(tileset[1], tileset[2]);
-		
+				
 		Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph);
         Tile vertex;
         while (iter.hasNext()) {
@@ -119,8 +115,8 @@ public class labelsANDgraph extends PApplet {
 	
 	public void makeGraph() {
 		// remove all vertices from graph (reverting it to an empty state)
-		for (int i = 0; i < tileset.length; i ++) {
-			tileGraph.removeVertex(tileset[i]);
+		for (int i = 0; i < present_tiles.length; i ++) {
+			tileGraph.removeVertex(present_tiles[i]);
 		}
 		
 		// get all the topcodes from the snapshot
@@ -133,8 +129,16 @@ public class labelsANDgraph extends PApplet {
 		for (TopCode code : codes) {
 			int thisCode = code.getCode();
 			for (int i = 0; i < tileset.length; i++) {
-				if (thisCode == tileset[i].topcodeID) {
-					tileGraph.addVertex(tileset[i]);
+				if (thisCode == tileset[i].topcodeID) { //if we've found a thing that matches
+					// make a new present_tile object that has all the info of the tile, plus info about the topcode
+					present_tiles = (Tile[]) append (present_tiles, tileset[i]);
+					//then add the vertex
+					int thisTile = present_tiles.length-1;
+					present_tiles[thisTile].centerX = code.getCenterX();
+					present_tiles[thisTile].centerY = code.getCenterY();
+					present_tiles[thisTile].diameter = code.getDiameter();
+					
+					tileGraph.addVertex(present_tiles[thisTile]);
 				} 
 			}
 		}
@@ -156,21 +160,21 @@ public class labelsANDgraph extends PApplet {
 					int code2i = 3;
 					
 					int thisCode = code1.getCode();
-					for (int i = 0; i < tileset.length; i++) {
-						if (thisCode == tileset[i].topcodeID) {
+					for (int i = 0; i < present_tiles.length; i++) {
+						if (thisCode == present_tiles[i].topcodeID) {
 							code1i = i;
 						} 
 					}
 					thisCode = code2.getCode();
-					for (int i = 0; i < tileset.length; i++) {
-						if (thisCode == tileset[i].topcodeID) {
+					for (int i = 0; i < present_tiles.length; i++) {
+						if (thisCode == present_tiles[i].topcodeID) {
 							code2i = i;
 						} 
 					}
 					
 					
 					//make edge between the two things
-					tileGraph.addEdge(tileset[code1i], tileset[code2i]);
+					tileGraph.addEdge(present_tiles[code1i], present_tiles[code2i]);
 				}
 				
 			}
@@ -184,6 +188,9 @@ public class labelsANDgraph extends PApplet {
             println(
                 "Vertex " + vertex.toString() + " is connected to edges: " + tileGraph.edgesOf(vertex).toString());
         }
+        
+        //draw lines between the edges
+        drawEdges();
 		
 	}
 
@@ -201,8 +208,8 @@ public class labelsANDgraph extends PApplet {
 		
 		// show the results
 		// println("Codes found: " + codes.size());
-		//image(cam, 0, 0);
-		//rectMode(CENTER);
+		// image(cam, 0, 0);
+		// rectMode(CENTER);
 
 		for (TopCode code : codes) {
 			String tileName = "";
@@ -226,11 +233,17 @@ public class labelsANDgraph extends PApplet {
 		}
 		
 	}
+		
+	public void drawEdges() {
+		// do stuff
+	}
 	
 	public class Tile {
 		int[] connections;
 		int topcodeID;
 		String topcodeName;
+		
+		float centerX, centerY, diameter;
 		
 		Tile(int _topcodeID, String _topcodeName, int c0, int c1, int c2, int c3) {
 			connections = new int[4];
@@ -245,7 +258,7 @@ public class labelsANDgraph extends PApplet {
 		}
 		@Override
 		public String toString() {
-			return str(this.topcodeID) + " " + this.topcodeName;
+			return str(this.topcodeID) + " " + this.topcodeName + " ( " + this.centerX + ", " + this.centerY + ", " + this.diameter + ")";
 		}
 	}
 
