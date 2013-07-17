@@ -1,6 +1,8 @@
 // press S to pause on a snapshot
 // press any other key to resume live video
 
+//
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -17,9 +19,16 @@ import org.jgrapht.generate.*;
 import org.jgrapht.graph.*;
 import org.jgrapht.traverse.*;
 
+//sample tile configuration is in samples/640_topcodes_47-55.png
+
 @SuppressWarnings({ "unused", "serial" })
 public class labelsANDgraph extends PApplet {
 
+	String sample_image_location = "samples/640_topcodes_47-55.png"; //location of image for debugging
+	boolean debug_mode = true;
+	boolean debug_snapshot_done = false;
+	PImage sample;
+	
 	XML xml;
 	Capture cam;
 	Scanner scanner;
@@ -73,11 +82,13 @@ public class labelsANDgraph extends PApplet {
 		size(640, 480);
 		String[] cameras = Capture.list();
 		cam = new Capture(this, cameras[0]);
-		cam.start();
+		if (debug_mode == false) {
+			cam.start();
+		}
 
 		scanner = new Scanner();
 		
-		// new JGraphT stuff
+		// JGraphT stuff
 		tileGraph = new SimpleGraph<Tile, DefaultEdge>(DefaultEdge.class);
 				
 		Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph);
@@ -86,44 +97,56 @@ public class labelsANDgraph extends PApplet {
             vertex = iter.next();
             println(
                 "Vertex " + vertex.toString() + " is connected to edges: " + tileGraph.edgesOf(vertex).toString());
-        }
-		
-		//end new
-		
+        }		
+        
+		//Image stuff
+		sample = loadImage(sample_image_location);
+        
 	}
 
-	public void draw() {
-		if (cam.available()) {
-			// Reads the new frame
-			cam.read();
-
-			if (key == 's' || key == 'S') {
-				//nothing happens; the keyPressed() event below will have been activated
-			} else { 
-				snapShot(); //this happens continuously as long as 'S' has not been pressed
+	public void draw() {		
+		if (debug_mode == false) {
+			if (cam.available()) {
+				// Reads the new frame
+				cam.read();
+	
+				if (key == 's' || key == 'S') {
+					//nothing happens; the keyPressed() event below will have been activated
+				} else { 
+					snapShot(cam); //this happens continuously as long as 'S' has not been pressed
+				}
+				
 			}
-			
+		} 
+		else { //debug_mode is true; we are using an image instead of live video
+			if (debug_snapshot_done == false) {
+				image(sample,0,0);
+				snapShot(sample);
+				makeGraph(sample);
+				debug_snapshot_done = true;
+			}
 		}
 	}
 	public void keyPressed() {
 		if (key == 's' || key == 'S') {
 		
-			snapShot(); //here it only happens once, when 'S' is pressed. Effectively pauses video capture.
-			makeGraph(); //only once, when the right frame is captured
+			snapShot(cam); //here it only happens once, when 'S' is pressed. Effectively pauses video capture.
+			makeGraph(cam); //only once, when the right frame is captured
 		}
 	}
 	
-	public void makeGraph() {
+	public void makeGraph(PImage img) {
 		// remove all vertices from graph (reverting it to an empty state)
 		for (int i = 0; i < present_tiles.length; i ++) {
 			tileGraph.removeVertex(present_tiles[i]);
 		}
 		
 		// get all the topcodes from the snapshot
-		int[] pixels = new int[cam.pixels.length];
+		List<TopCode> codes = getTopcodes(img);
+		/*int[] pixels = new int[cam.pixels.length];
 		System.arraycopy(cam.pixels, 0, pixels, 0, cam.pixels.length);
 		
-		List<TopCode> codes = scanner.scan(pixels, cam.width, cam.height);
+		List<TopCode> codes = scanner.scan(pixels, cam.width, cam.height);*/
 		
 		// fill graph with Tiles as vertices
 		for (TopCode code : codes) {
@@ -193,18 +216,28 @@ public class labelsANDgraph extends PApplet {
         drawEdges();
 		
 	}
+	
+	public List<TopCode> getTopcodes(PImage img) {
+		// get all the topcodes from the snapshot
+		int[] pixels = new int[img.pixels.length];
+		System.arraycopy(img.pixels, 0, pixels, 0, img.pixels.length);
+		
+		return scanner.scan(pixels, img.width, img.height);
+	}
 
-	public void snapShot() {
+	public void snapShot(PImage img) {
 		//normal behaviour: live video with topcodes being identified
 		image(cam, 0, 0);
 		rectMode(CENTER);
 		
+		
+		List<TopCode> codes = getTopcodes(img);
 		// We need a copy -- the scanner modifies the image
-		int[] pixels = new int[cam.pixels.length];
+		/*int[] pixels = new int[cam.pixels.length];
 		System.arraycopy(cam.pixels, 0, pixels, 0, cam.pixels.length);
 
 		// Do the work
-		List<TopCode> codes = scanner.scan(pixels, cam.width, cam.height);
+		List<TopCode> codes = scanner.scan(pixels, cam.width, cam.height);*/
 		
 		// show the results
 		// println("Codes found: " + codes.size());
