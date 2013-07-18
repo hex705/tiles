@@ -24,7 +24,7 @@ import org.jgrapht.traverse.*;
 @SuppressWarnings({ "unused", "serial" })
 public class labelsANDgraph extends PApplet {
 
-	String sample_image_location = "samples/640_topcodes_47-55.png"; //location of image for debugging
+	String sample_image_location = "samples/M1000004.JPG"; //location of image for debugging
 	boolean debug_mode = true;
 	boolean debug_snapshot_done = false;
 	PImage sample;
