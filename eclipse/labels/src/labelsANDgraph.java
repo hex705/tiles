@@ -39,7 +39,6 @@ public class labelsANDgraph extends PApplet {
 	//array for all the tiles that are in the captured image
 	Tile[] present_tiles;
 	
-
 	//JGraphT stuff
 	SimpleGraph<Tile, DefaultEdge> tileGraph;
     //end JGraphT stuff
@@ -91,15 +90,7 @@ public class labelsANDgraph extends PApplet {
 		
 		// JGraphT stuff
 		tileGraph = new SimpleGraph<Tile, DefaultEdge>(DefaultEdge.class);
-				
-		Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph);
-        Tile vertex;
-        while (iter.hasNext()) {
-            vertex = iter.next();
-            println(
-                "Vertex " + vertex.toString() + " is connected to edges: " + tileGraph.edgesOf(vertex).toString());
-        }		
-        
+			        
 		//Image stuff
 		sample = loadImage(sample_image_location);
         
@@ -199,22 +190,37 @@ public class labelsANDgraph extends PApplet {
 					
 					//make edge between the two things
 					tileGraph.addEdge(present_tiles[code1i], present_tiles[code2i]);
+					//edge visualization
+					line(present_tiles[code1i].centerX,present_tiles[code1i].centerY,present_tiles[code2i].centerX,present_tiles[code2i].centerY);
 				}
 				
 			}
 		}
 		
+		/*
 		//view newly filled graph
-		Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph);
+		Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph, present);
         Tile vertex;
         while (iter.hasNext()) {
             vertex = iter.next();
             println(
-                "Vertex " + vertex.toString() + " is connected to edges: " + tileGraph.edgesOf(vertex).toString());
-        }
+                "Vertex " + " " + vertex.toString() + " is connected to edges: " + tileGraph.edgesOf(vertex).toString());
         
-        //draw lines between the edges
-        drawEdges();
+		}*/
+		for (Tile present : present_tiles)	{
+			println(present.type);
+			if (present.type == "hub"){ //for some reason, THESE ARE NEVER EQUAL even though they are the same??? >:(
+				println(present.toString() + " is a hub");
+				/*//view newly filled graph from HUBS
+				Iterator<Tile> iter = new BreadthFirstIterator<Tile, DefaultEdge>(tileGraph, present);
+				println ("from" + present.toString());
+		        Tile vertex;
+		        while (iter.hasNext()) {
+		            vertex = iter.next();
+		            println(vertex.toString());
+		        }*/
+			}
+		}
 		
 	}
 	
