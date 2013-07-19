@@ -24,7 +24,7 @@ import org.jgrapht.traverse.*;
 @SuppressWarnings({ "unused", "serial" })
 public class labelsANDgraph extends PApplet {
 
-	String sample_image_location = "samples/M1000004.JPG"; //location of image for debugging
+	String sample_image_location = "samples/M1000004b.png"; //location of image for debugging
 	boolean debug_mode = true;
 	boolean debug_snapshot_done = false;
 	PImage sample;
@@ -208,17 +208,20 @@ public class labelsANDgraph extends PApplet {
         
 		}*/
 		for (Tile present : present_tiles)	{
-			println(present.type);
-			if (present.type == "hub"){ //for some reason, THESE ARE NEVER EQUAL even though they are the same??? >:(
+			// println(present.type);
+			if (present.type == tileset[5].type || present.type == tileset[9].type){ //check if tile is Arduino or Processing (hubs)
 				println(present.toString() + " is a hub");
-				/*//view newly filled graph from HUBS
-				Iterator<Tile> iter = new BreadthFirstIterator<Tile, DefaultEdge>(tileGraph, present);
-				println ("from" + present.toString());
+				//view newly filled graph from HUBS
+				Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph, present);
+				println ("from " + present.toString());
 		        Tile vertex;
 		        while (iter.hasNext()) {
 		            vertex = iter.next();
-		            println(vertex.toString());
-		        }*/
+		            println("    " + vertex.toString());
+		            if (vertex != present && (vertex.type == tileset[5].type || vertex.type == tileset[9].type)) { //ends the loop if another hub is encountered
+		            	break;
+		            }
+		        }
 			}
 		}
 		
@@ -300,7 +303,7 @@ public class labelsANDgraph extends PApplet {
 		}
 		@Override
 		public String toString() {
-			return str(this.topcodeID) + " " + this.topcodeName + " (" + this.type + ") ( " + this.centerX + ", " + this.centerY + ", " + this.diameter + ")";
+			return str(this.topcodeID) + " " + this.topcodeName + " (" + this.type + ") (" + this.centerX + ", " + this.centerY + ", " + this.diameter + ")";
 		}
 	}
 
