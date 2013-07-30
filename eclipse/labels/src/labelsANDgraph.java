@@ -24,7 +24,8 @@ import org.jgrapht.traverse.*;
 @SuppressWarnings({ "unused", "serial" })
 public class labelsANDgraph extends PApplet {
 
-	String sample_image_location = "samples/M1000004b.png"; //location of image for debugging
+	// String sample_image_location = "samples/M1000004b.png"; //location of image for debugging
+	String sample_image_location = "samples/M1000003.JPG"; 
 	boolean debug_mode = true;
 	boolean debug_snapshot_done = false;
 	PImage sample;
@@ -41,9 +42,13 @@ public class labelsANDgraph extends PApplet {
 	
 	//JGraphT stuff
 	SimpleGraph<Tile, DefaultEdge> tileGraph;
-    //end JGraphT stuff
+	
+	//misc.
+	int lastID;
 
 	public void setup() {
+		lastID = 0;
+		
 		// xml stuff
 		xml = loadXML("tileset.xml");
 		XML[] children = xml.getChildren("tile");
@@ -135,81 +140,67 @@ public class labelsANDgraph extends PApplet {
 		
 		// get all the topcodes from the snapshot
 		List<TopCode> codes = getTopcodes(img);
-		/*int[] pixels = new int[cam.pixels.length];
-		System.arraycopy(cam.pixels, 0, pixels, 0, cam.pixels.length);
 		
-		List<TopCode> codes = scanner.scan(pixels, cam.width, cam.height);*/
+		lastID =  0; // reset lastID
+
+		present_tiles = new Tile[0]; // reset array to empty
+		present_tiles = new Tile[codes.size()]; // reset array with length of the number of topcodes there are
+		//println(present_tiles.length);
 		
-		// fill graph with Tiles as vertices
+		// add all the topcodes to the present_tiles array
 		for (TopCode code : codes) {
 			int thisCode = code.getCode();
+			
+			//println (code.getCode() + " " + code.getCenterX() + ", " + code.getCenterY());
 			for (int i = 0; i < tileset.length; i++) {
-				if (thisCode == tileset[i].topcodeID) { //if we've found a thing that matches
+				if (thisCode == tileset[i].topcodeID) { // if we've found a thing that matches
 					// make a new present_tile object that has all the info of the tile, plus info about the topcode
-					present_tiles = (Tile[]) append (present_tiles, tileset[i]);
-					//then add the vertex
-					int thisTile = present_tiles.length-1;
-					present_tiles[thisTile].centerX = code.getCenterX();
-					present_tiles[thisTile].centerY = code.getCenterY();
-					present_tiles[thisTile].diameter = code.getDiameter();
+					Tile newTile = new Tile(tileset[i].topcodeID, tileset[i].topcodeName, tileset[i].type, tileset[i].connections[0], tileset[i].connections[1], tileset[i].connections[2], tileset[i].connections[3]);
+					// give the tile a unique ID
+					newTile.id = lastID;
+					// give the tile all the properties of the topcode
+					newTile.centerX = code.getCenterX();
+					newTile.centerY = code.getCenterY();
+					newTile.diameter = code.getDiameter();
+					// add tile to the present_tiles array
+					present_tiles[lastID] = newTile;
+					println (present_tiles[lastID].toString());
+					lastID ++;
 					
-					tileGraph.addVertex(present_tiles[thisTile]);
+					println(present_tiles[0].toString());
+					
 				} 
 			}
 		}
 		
-		// get distances between topcodes
-		for (TopCode code1 : codes) {
-			for (TopCode code2 : codes) {
+		for (Tile tiles : present_tiles) {
+			// add all present_tiles as vertices to the graph
+			tileGraph.addVertex(tiles);
+			// print out all the tiles
+			println(tiles.toString());
+		}
+		
+		// get distances between tiles
+		for (Tile tile1 : present_tiles) {
+			for (Tile tile2 : present_tiles) {
 			
-				float distance = dist (code1.getCenterX(), code1.getCenterY(), 
-						code2.getCenterX(), code2.getCenterY());
+				float distance = dist (tile1.centerX, tile1.centerY, 
+						tile2.centerX, tile2.centerY);
 				
-				if (distance > 0) println (distance);
-				println(code1.getDiameter());
-
 				// make edge connections between them depending on distance
-				if (distance > 0 && distance < code1.getDiameter()*3) { //they are close enough to be considered 'connected'
-					//get both tiles
-					int code1i = 2;
-					int code2i = 3;
-					
-					int thisCode = code1.getCode();
-					for (int i = 0; i < present_tiles.length; i++) {
-						if (thisCode == present_tiles[i].topcodeID) {
-							code1i = i;
-						} 
-					}
-					thisCode = code2.getCode();
-					for (int i = 0; i < present_tiles.length; i++) {
-						if (thisCode == present_tiles[i].topcodeID) {
-							code2i = i;
-						} 
-					}
-					
+				if (distance > 0 && distance < tile1.diameter*3) { //they are close enough to be considered 'connected'			
 					
 					//make edge between the two things
-					tileGraph.addEdge(present_tiles[code1i], present_tiles[code2i]);
+					tileGraph.addEdge(tile1, tile2);
 					//edge visualization
-					line(present_tiles[code1i].centerX,present_tiles[code1i].centerY,present_tiles[code2i].centerX,present_tiles[code2i].centerY);
+					line(tile1.centerX,tile1.centerY,tile2.centerX,tile2.centerY);
 				}
-				
 			}
 		}
 		
-		/*
-		//view newly filled graph
-		Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph, present);
-        Tile vertex;
-        while (iter.hasNext()) {
-            vertex = iter.next();
-            println(
-                "Vertex " + " " + vertex.toString() + " is connected to edges: " + tileGraph.edgesOf(vertex).toString());
-        
-		}*/
 		for (Tile present : present_tiles)	{
 			// println(present.type);
-			if (present.type == tileset[5].type || present.type == tileset[9].type){ //check if tile is Arduino or Processing (hubs)
+			if (present.type.equals("hub")){ //check if tile is Arduino or Processing (hubs)
 				println(present.toString() + " is a hub");
 				//view newly filled graph from HUBS
 				Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph, present);
@@ -224,7 +215,6 @@ public class labelsANDgraph extends PApplet {
 		        }
 			}
 		}
-		
 	}
 	
 	public List<TopCode> getTopcodes(PImage img) {
@@ -238,21 +228,9 @@ public class labelsANDgraph extends PApplet {
 	public void snapShot(PImage img) {
 		//normal behaviour: live video with topcodes being identified
 		image(cam, 0, 0);
-		rectMode(CENTER);
-		
+		rectMode(CENTER);		
 		
 		List<TopCode> codes = getTopcodes(img);
-		// We need a copy -- the scanner modifies the image
-		/*int[] pixels = new int[cam.pixels.length];
-		System.arraycopy(cam.pixels, 0, pixels, 0, cam.pixels.length);
-
-		// Do the work
-		List<TopCode> codes = scanner.scan(pixels, cam.width, cam.height);*/
-		
-		// show the results
-		// println("Codes found: " + codes.size());
-		// image(cam, 0, 0);
-		// rectMode(CENTER);
 
 		for (TopCode code : codes) {
 			String tileName = "";
@@ -276,12 +254,9 @@ public class labelsANDgraph extends PApplet {
 		}
 		
 	}
-		
-	public void drawEdges() {
-		// do stuff
-	}
 	
 	public class Tile {
+		int id;
 		int[] connections;
 		int topcodeID;
 		String topcodeName;
@@ -290,6 +265,7 @@ public class labelsANDgraph extends PApplet {
 		float centerX, centerY, diameter;
 		
 		Tile(int _topcodeID, String _topcodeName, String _type, int c0, int c1, int c2, int c3) {
+			
 			connections = new int[4];
 			topcodeID = _topcodeID;
 			topcodeName = _topcodeName;
@@ -303,7 +279,7 @@ public class labelsANDgraph extends PApplet {
 		}
 		@Override
 		public String toString() {
-			return str(this.topcodeID) + " " + this.topcodeName + " (" + this.type + ") (" + this.centerX + ", " + this.centerY + ", " + this.diameter + ")";
+			return str(this.topcodeID) + " " + this.topcodeName + " (" + this.type + ") " + this.id + " (" + this.centerX + ", " + this.centerY + ", " + this.diameter + ")";
 		}
 	}
 
