@@ -8,6 +8,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import java.io.*;
+import java.net.*;
+
 import processing.core.*;
 import processing.data.*;
 import processing.video.Capture;
@@ -98,7 +101,6 @@ public class labelsANDgraph extends PApplet {
 			        
 		//Image stuff
 		sample = loadImage(sample_image_location);
-        
 	}
 
 	public void draw() {		
@@ -112,7 +114,6 @@ public class labelsANDgraph extends PApplet {
 				} else { 
 					snapShot(cam); //this happens continuously as long as 'S' has not been pressed
 				}
-				
 			}
 		} 
 		else { //debug_mode is true; we are using an image instead of live video
@@ -168,7 +169,6 @@ public class labelsANDgraph extends PApplet {
 					lastID ++;
 					
 					println(present_tiles[0].toString());
-					
 				} 
 			}
 		}
@@ -215,6 +215,12 @@ public class labelsANDgraph extends PApplet {
 		        }
 			}
 		}
+		try {
+			sendToServer("hello world");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public List<TopCode> getTopcodes(PImage img) {
@@ -242,6 +248,7 @@ public class labelsANDgraph extends PApplet {
 					println(tileName);
 				} 
 
+			// drawing all the topcode boundaries and names
 			pushMatrix();
 			stroke(0, 255, 0);
 			noFill();
@@ -252,37 +259,31 @@ public class labelsANDgraph extends PApplet {
 			popMatrix();
 			}
 		}
-		
 	}
 	
-	public class Tile {
-		int id;
-		int[] connections;
-		int topcodeID;
-		String topcodeName;
-		String type;
+	public void sendToServer(String message) throws Exception { // from http://docs.oracle.com/javase/tutorial/networking/urls/readingWriting.html
 		
-		float centerX, centerY, diameter;
-		
-		Tile(int _topcodeID, String _topcodeName, String _type, int c0, int c1, int c2, int c3) {
-			
-			connections = new int[4];
-			topcodeID = _topcodeID;
-			topcodeName = _topcodeName;
-			type = _type;
-	
-			// connections are in order: TRBL
-			connections[0] = c0;
-			connections[1] = c1;
-			connections[2] = c2;
-			connections[3] = c3;
-		}
-		@Override
-		public String toString() {
-			return str(this.topcodeID) + " " + this.topcodeName + " (" + this.type + ") " + this.id + " (" + this.centerX + ", " + this.centerY + ", " + this.diameter + ")";
-		}
-	}
+		String stringToReverse = URLEncoder.encode(message, "UTF-8");
 
+        URL url = new URL("http://imagearts.ryerson.ca/kathryn.hartog/tilesProcessor.php");
+        URLConnection connection = url.openConnection();
+        connection.setDoOutput(true);
+
+        OutputStreamWriter out = new OutputStreamWriter(
+                                         connection.getOutputStream());
+        out.write("message=" + stringToReverse);
+        out.close();
+
+        BufferedReader in = new BufferedReader(
+                                    new InputStreamReader(
+                                    connection.getInputStream()));
+        String decodedString;
+        while ((decodedString = in.readLine()) != null) {
+            System.out.println(decodedString);
+        }
+        in.close();
+	}
+	
 	public static void main(String args[]) {
 		PApplet.main(new String[] { "labelsANDgraph" });
 	}
