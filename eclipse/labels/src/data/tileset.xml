@@ -27,7 +27,7 @@
 	</tile>	
 	<tile topcodeID="167" type="data_transport">
 		<name>X-Bee Shield</name>
-		<connections L="3" R="4" T="2" B="2"/>
+		<connections L="3" R="4" T="2" B="2" />
 	</tile>	
 	<tile topcodeID="185" type="data_transport">
 		<name>X-Bee Explorer</name>
@@ -43,6 +43,6 @@
 	</tile>	
 	<tile topcodeID="333" type="data_protocol">
 		<name>OSC</name>
-		<connections L="6" R="6" T="6" B="6" />
+		<connections L="6" R="3" T="4" B="5" />
 	</tile>	
 </tileset>

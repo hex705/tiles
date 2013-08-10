@@ -28,7 +28,8 @@ import org.jgrapht.traverse.*;
 public class labelsANDgraph extends PApplet {
 
 	// String sample_image_location = "samples/M1000004b.png"; //location of image for debugging
-	String sample_image_location = "samples/M1000003.JPG"; 
+	String sample_image_location = "samples/M1000008.JPG"; 
+	float acceptable_distance = 4;
 	boolean debug_mode = true;
 	boolean debug_snapshot_done = false;
 	PImage sample;
@@ -165,10 +166,10 @@ public class labelsANDgraph extends PApplet {
 					newTile.diameter = code.getDiameter();
 					// add tile to the present_tiles array
 					present_tiles[lastID] = newTile;
-					println (present_tiles[lastID].toString());
+					//println (present_tiles[lastID].toString());
 					lastID ++;
 					
-					println(present_tiles[0].toString());
+					//println(present_tiles[0].toString());
 				} 
 			}
 		}
@@ -177,23 +178,39 @@ public class labelsANDgraph extends PApplet {
 			// add all present_tiles as vertices to the graph
 			tileGraph.addVertex(tiles);
 			// print out all the tiles
-			println(tiles.toString());
+			//println(tiles.toString());
 		}
 		
 		// get distances between tiles
 		for (Tile tile1 : present_tiles) {
-			for (Tile tile2 : present_tiles) {
-			
-				float distance = dist (tile1.centerX, tile1.centerY, 
-						tile2.centerX, tile2.centerY);
+			for (int tile1c : tile1.connections) { //cycle through every connection on tile1
+				float shortest_distance = acceptable_distance*tile1.diameter; // for determining the closest tile
+				Tile short_tile = null;
+				for (Tile tile2 : present_tiles) {
+					float distance = dist (tile1.centerX, tile1.centerY, 
+					tile2.centerX, tile2.centerY);
 				
-				// make edge connections between them depending on distance
-				if (distance > 0 && distance < tile1.diameter*3) { //they are close enough to be considered 'connected'			
-					
-					//make edge between the two things
-					tileGraph.addEdge(tile1, tile2);
+					if (distance > 0 && distance < tile1.diameter*acceptable_distance) { //they are close enough
+						for (int tile2c : tile2.connections) { //cycle through tile2 connections
+							if (tile1c == tile2c && tile1c != 0) {
+								println(tile1c);
+								println(distance);
+								if (distance < shortest_distance) {
+									shortest_distance = distance;
+									short_tile = tile2;
+								}
+							}
+						}
+					}
+				}
+				if (short_tile != null) {
+					println(shortest_distance);
+					println(tile1.toString() + " " + short_tile.toString());
+							
+					//make edge between the two things (that are the closest)
+					tileGraph.addEdge(tile1, short_tile);
 					//edge visualization
-					line(tile1.centerX,tile1.centerY,tile2.centerX,tile2.centerY);
+					line(tile1.centerX,tile1.centerY,short_tile.centerX,short_tile.centerY);
 				}
 			}
 		}
@@ -216,7 +233,7 @@ public class labelsANDgraph extends PApplet {
 			}
 		}
 		try {
-			sendToServer("hello world");
+			//sendToServer("hello world");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
