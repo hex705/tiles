@@ -28,7 +28,7 @@ import org.jgrapht.traverse.*;
 public class labelsANDgraph extends PApplet {
 
 	// String sample_image_location = "samples/M1000004b.png"; //location of image for debugging
-	String sample_image_location = "samples/M1000008.JPG"; 
+	String sample_image_location = "samples/M1030002.png"; 
 	float acceptable_distance = 4;
 	boolean debug_mode = true;
 	boolean debug_snapshot_done = false;
