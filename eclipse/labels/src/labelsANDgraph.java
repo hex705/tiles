@@ -28,7 +28,7 @@ import org.jgrapht.traverse.*;
 public class labelsANDgraph extends PApplet {
 
 	// String sample_image_location = "samples/M1000004b.png"; //location of image for debugging
-	String sample_image_location = "samples/M1030003.png"; 
+	String sample_image_location = "samples/M1000006.JPG"; 
 	float acceptable_distance = 4;
 	boolean debug_mode = true;
 	boolean debug_snapshot_done = false;
@@ -219,7 +219,8 @@ public class labelsANDgraph extends PApplet {
 		}
 		
 		try {
-			sendToServer(getOutput());
+			//sendToServer(getOutput());
+			println(getOutput());
 		} catch (Exception e) {
 			//do nothing
 			e.printStackTrace();
@@ -270,7 +271,7 @@ public class labelsANDgraph extends PApplet {
 		// adding all NODES
 			XML nodes = output_template.getChild("nodes");
 		for (Tile tiles : present_tiles) {
-			// add all present_tiles as children to output_template
+			// add all present_tiles as children to output_template in <nodes>
 			XML newNode = nodes.addChild("node"); //new node
 			//populating the node
 			XML newID = newNode.addChild("id");
@@ -287,22 +288,41 @@ public class labelsANDgraph extends PApplet {
 			XML paths = output_template.getChild("paths");
 		for (Tile present : present_tiles)	{
 			// println(present.type);
+			
 			if (present.type.equals("hub")){ //check if tile is Arduino or Processing (hubs)
 				println(present.toString() + " is a hub");
-				XML newPath = paths.addChild("path");
-				//iterate through graph from the hub
-				Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph, present);
-		        Tile vertex;
-		        while (iter.hasNext()) {
-		            vertex = iter.next();
-		            println("    " + vertex.toString()); // print node
-					XML newNode = newPath.addChild("node"); // add node to output_template
-					populateNode(vertex, newNode);
+
+				Set<DefaultEdge> allEdges = tileGraph.edgesOf(present); 				
+				int numEdges = allEdges.size(); 
+				println(numEdges + " edges connected to this tile"); //number of edges connected to hub
+				if (numEdges == 1) { // only hubs at the very end
 					
-		            if (vertex != present && (vertex.type == tileset[5].type || vertex.type == tileset[9].type)) { //ends the loop if another hub is encountered
-		            	break;
-		            }
-		        }
+					XML newPath = paths.addChild("path");
+					//iterate through graph from the hub
+					Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph, present);
+			        Tile vertex;
+			        while (iter.hasNext()) {
+			            vertex = iter.next();
+				            println("    " + vertex.toString()); // print node
+							XML newNode = newPath.addChild("node"); // add node to output_template
+							populateNode(vertex, newNode);
+						
+			            if (vertex != present && vertex.type.equals("hub")) { //ends the path if another hub is encountered
+			            	allEdges = tileGraph.edgesOf(vertex); 				
+							numEdges = allEdges.size(); 
+							println(numEdges + " edges connected to this tile"); //number of edges connected to hub
+							if (numEdges > 1) {
+			            	
+				            	//new path with the last hub to start with
+								newPath = paths.addChild("path");
+								//add middle hub again, in this new path
+					            println("    " + vertex.toString()); // print node
+								newNode = newPath.addChild("node"); // add node to output_template
+								populateNode(vertex, newNode);
+							}
+			            }
+			        }
+				}
 			}
 		}		
 		String output = output_template.format(4);
