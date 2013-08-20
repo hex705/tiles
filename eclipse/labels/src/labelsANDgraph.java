@@ -58,8 +58,6 @@ public class labelsANDgraph extends PApplet {
 		xml = loadXML("tileset.xml");
 		XML[] children = xml.getChildren("tile");
 		
-		output_template = loadXML("outputTemplate.xml");
-		
 		tileset = new Tile[children.length];
 		present_tiles = new Tile[0];
 				
@@ -134,6 +132,15 @@ public class labelsANDgraph extends PApplet {
 		
 			snapShot(cam); //here it only happens once, when 'S' is pressed. Effectively pauses video capture.
 			makeGraph(cam); //only once, when the right frame is captured
+		}
+		
+		// For testing
+		if (key == ' ') {
+			try {
+				sendToServer(getOutput());
+			} catch (Exception e) { 
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -267,7 +274,9 @@ public class labelsANDgraph extends PApplet {
 	}
 	
 	public String getOutput() {
-		println("output:");
+		println("output:");		
+		// reload the output template every time		
+		output_template = loadXML("outputTemplate.xml");
 		// adding all NODES
 			XML nodes = output_template.getChild("nodes");
 		for (Tile tiles : present_tiles) {
