@@ -2,39 +2,39 @@
 <!DOCTYPE tileset SYSTEM "tileset.dtd">
 <tileset>
 	<tile topcodeID="47" type="data_transport">
-		<name>Serial</name>
-		<connections L="1" R="3" />
+		<name>PRO-Serial</name>
+		<connections L="3" R="1" />
 	</tile>	
 	<tile topcodeID="55" type="data_transport">
-		<name>Internet (Processing)</name>
+		<name>PRO-Internet</name>
 		<connections L="1" R="5" />
 	</tile>	
 	<tile topcodeID="61" type="data_transport">
-		<name>Internet (Shield)</name>
-		<connections R="5" T="2" B="2" />
+		<name>ARD-Internet</name>
+		<connections R="5" T="2" />
 	</tile>	
 	<tile topcodeID="79" type="data_transport">
-		<name>Wifi</name>
-		<connections R="5" T="2" B="2" />
+		<name>ARD-Wifi</name>
+		<connections L="5" T="2" />
 	</tile>	
 	<tile topcodeID="93" type="data_transport">
-		<name>Ethernet</name>
-		<connections R="5" T="2" B="2" />
+		<name>ARD-Ethernet</name>
+		<connections R="5" T="2" />
 	</tile>	
 	<tile topcodeID="121" type="hub">
 		<name>Arduino</name>
 		<connections R="3" B="2" />
 	</tile>	
 	<tile topcodeID="167" type="data_transport">
-		<name>X-Bee Shield</name>
-		<connections L="3" R="4" T="2" B="2" />
+		<name>xBee Shield</name>
+		<connections L="3" R="4" T="2" />
 	</tile>	
 	<tile topcodeID="185" type="data_transport">
-		<name>X-Bee Explorer</name>
-		<connections L="3" R="4" />
+		<name>xBee X-plorer</name>
+		<connections L="4" R="3" />
 	</tile>	
 	<tile topcodeID="213" type="data_transport">
-		<name>X-Bee Breakout</name>
+		<name>xBee Breakout</name>
 		<connections L="3" R="4" />
 	</tile>	
 	<tile topcodeID="339" type="hub">

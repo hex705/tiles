@@ -28,13 +28,14 @@ import org.jgrapht.traverse.*;
 public class labelsANDgraph extends PApplet {
 
 	// String sample_image_location = "samples/M1000004b.png"; //location of image for debugging
-	String sample_image_location = "samples/M1030002.png"; 
+	String sample_image_location = "samples/M1000006.JPG"; 
 	float acceptable_distance = 4;
 	boolean debug_mode = true;
 	boolean debug_snapshot_done = false;
 	PImage sample;
 	
 	XML xml;
+	XML output_template;
 	Capture cam;
 	Scanner scanner;
 
@@ -56,6 +57,8 @@ public class labelsANDgraph extends PApplet {
 		// xml stuff
 		xml = loadXML("tileset.xml");
 		XML[] children = xml.getChildren("tile");
+		
+		output_template = loadXML("outputTemplate.xml");
 		
 		tileset = new Tile[children.length];
 		present_tiles = new Tile[0];
@@ -193,8 +196,8 @@ public class labelsANDgraph extends PApplet {
 					if (distance > 0 && distance < tile1.diameter*acceptable_distance) { //they are close enough
 						for (int tile2c : tile2.connections) { //cycle through tile2 connections
 							if (tile1c == tile2c && tile1c != 0) {
-								println(tile1c);
-								println(distance);
+								//println(tile1c);
+								//println(distance);
 								if (distance < shortest_distance) {
 									shortest_distance = distance;
 									short_tile = tile2;
@@ -204,8 +207,8 @@ public class labelsANDgraph extends PApplet {
 					}
 				}
 				if (short_tile != null) {
-					println(shortest_distance);
-					println(tile1.toString() + " " + short_tile.toString());
+					//println(shortest_distance);
+					//println(tile1.toString() + " " + short_tile.toString());
 							
 					//make edge between the two things (that are the closest)
 					tileGraph.addEdge(tile1, short_tile);
@@ -215,27 +218,11 @@ public class labelsANDgraph extends PApplet {
 			}
 		}
 		
-		for (Tile present : present_tiles)	{
-			// println(present.type);
-			if (present.type.equals("hub")){ //check if tile is Arduino or Processing (hubs)
-				println(present.toString() + " is a hub");
-				//view newly filled graph from HUBS
-				Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph, present);
-				println ("from " + present.toString());
-		        Tile vertex;
-		        while (iter.hasNext()) {
-		            vertex = iter.next();
-		            println("    " + vertex.toString());
-		            if (vertex != present && (vertex.type == tileset[5].type || vertex.type == tileset[9].type)) { //ends the loop if another hub is encountered
-		            	break;
-		            }
-		        }
-			}
-		}
 		try {
-			//sendToServer("hello world");
+			//sendToServer(getOutput());
+			println(getOutput());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			//do nothing
 			e.printStackTrace();
 		}
 	}
@@ -255,6 +242,7 @@ public class labelsANDgraph extends PApplet {
 		
 		List<TopCode> codes = getTopcodes(img);
 
+			println("present tiles:");
 		for (TopCode code : codes) {
 			String tileName = "";
 
@@ -262,7 +250,7 @@ public class labelsANDgraph extends PApplet {
 			for (int i = 0; i < tileset.length; i++) {
 				if (thisCode == tileset[i].topcodeID) {
 					tileName = tileset[i].topcodeID + " " + tileset[i].topcodeName;
-					println(tileName);
+					println("    " + tileName);
 				} 
 
 			// drawing all the topcode boundaries and names
@@ -276,6 +264,83 @@ public class labelsANDgraph extends PApplet {
 			popMatrix();
 			}
 		}
+	}
+	
+	public String getOutput() {
+		println("output:");
+		// adding all NODES
+			XML nodes = output_template.getChild("nodes");
+		for (Tile tiles : present_tiles) {
+			// add all present_tiles as children to output_template in <nodes>
+			XML newNode = nodes.addChild("node"); //new node
+			//populating the node
+			XML newID = newNode.addChild("id");
+			newID.setContent(str(tiles.id));
+			XML newTileName = newNode.addChild("tileName");
+			newTileName.setContent(tiles.topcodeName);
+			XML newTopcodeID = newNode.addChild("topcodeID");
+			newTopcodeID.setContent(str(tiles.topcodeID));
+			XML newType = newNode.addChild("type");
+			newType.setContent(tiles.type);
+		}
+		
+		//making PATHS
+			XML paths = output_template.getChild("paths");
+		for (Tile present : present_tiles)	{
+			// println(present.type);
+			
+			if (present.type.equals("hub")){ //check if tile is Arduino or Processing (hubs)
+				println(present.toString() + " is a hub");
+
+				Set<DefaultEdge> allEdges = tileGraph.edgesOf(present); 				
+				int numEdges = allEdges.size(); 
+				println(numEdges + " edges connected to this tile"); //number of edges connected to hub
+				if (numEdges == 1) { // only hubs at the very end
+					
+					XML newPath = paths.addChild("path");
+					//iterate through graph from the hub
+					Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph, present);
+			        Tile vertex;
+			        while (iter.hasNext()) {
+			            vertex = iter.next();
+				            println("    " + vertex.toString()); // print node
+							XML newNode = newPath.addChild("node"); // add node to output_template
+							populateNode(vertex, newNode);
+						
+			            if (vertex != present && vertex.type.equals("hub")) { //ends the path if another hub is encountered
+			            	allEdges = tileGraph.edgesOf(vertex); 				
+							numEdges = allEdges.size(); 
+							println(numEdges + " edges connected to this tile"); //number of edges connected to hub
+							if (numEdges > 1) {
+			            	
+				            	//new path with the last hub to start with
+								newPath = paths.addChild("path");
+								//add middle hub again, in this new path
+					            println("    " + vertex.toString()); // print node
+								newNode = newPath.addChild("node"); // add node to output_template
+								populateNode(vertex, newNode);
+							}
+			            }
+			        }
+				}
+			}
+		}		
+		String output = output_template.format(4);
+		//println(output_template); // prints xml file
+		
+		return output;
+	}
+	
+	public void populateNode(Tile tiles, XML newNode) {
+		//populating the node
+		XML newID = newNode.addChild("id");
+		newID.setContent(str(tiles.id));
+		XML newTileName = newNode.addChild("tileName");
+		newTileName.setContent(tiles.topcodeName);
+		XML newTopcodeID = newNode.addChild("topcodeID");
+		newTopcodeID.setContent(str(tiles.topcodeID));
+		XML newType = newNode.addChild("type");
+		newType.setContent(tiles.type);
 	}
 	
 	public void sendToServer(String message) throws Exception { // from http://docs.oracle.com/javase/tutorial/networking/urls/readingWriting.html
