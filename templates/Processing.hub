@@ -1,0 +1,13 @@
+$import
+
+$variables
+
+void setup() {
+  $setup
+}
+
+void draw() {
+  $draw
+}
+
+$functions

@@ -1,0 +1,14 @@
+$includes
+
+$variables
+
+void setup() {
+  $setup
+}
+
+void loop() {
+  $loop
+}
+
+$functions
+

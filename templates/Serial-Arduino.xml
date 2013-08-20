@@ -1,0 +1,14 @@
+<template>
+<core>
+<setup>
+Serial.begin(9600);
+</setup>
+
+<loop>
+</loop>
+
+<function>
+</function>
+
+</core>
+</template>

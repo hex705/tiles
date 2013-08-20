@@ -1,0 +1,38 @@
+<template>
+<core>
+	<import>
+	import processing.serial.*;
+	</import>
+
+	<variables>
+	Serial serial$count;
+	String serialName$count = "/dev/tty.usbxxxxxx"; // put the name of your Arduino here
+	int    baudRate = 9600; // set your baud rate
+	</variables>
+
+	<setup>
+	// find your serial device in this list 
+	println(Serial.list());	
+	serial$count = new Serial(this, baudRate, serialName$count);
+	</setup>
+</core>
+
+<default>
+	<setup>
+	serial$count
+	</setup>
+
+	<functions>
+	// Receiving serial data 
+	void serialEvent(Serial whichPort) {
+		String data = whichPort.readStringUntil('\n');
+		println(data); 
+	}
+	
+	// Sending serial data
+	void sendSerial$count(String data) {
+		serial$count.write(data);
+	}
+	</functions>
+</default>
+</template>
