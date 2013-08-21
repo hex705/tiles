@@ -1,0 +1,49 @@
+<template>
+
+<counter>$SERIAL_COUNT</counter>
+
+<unique>
+	<import>
+	import processing.serial.*;
+	</import>
+	<setup>
+	// You'll find your serial device in this list 
+	println(Serial.list());	
+	</setup>
+</unique>
+
+<always>
+	<variables>
+	Serial serial$SERIAL_COUNT;
+	String serialName$SERIAL_COUNT = "/dev/tty.usbxxxxxx"; // put the name of your serial port
+	int    baudRate = 9600; // set your baud rate	
+	</variables>
+	<setup>
+	serial$SERIAL_COUNT = new Serial(this, serialName$SERIAL_COUNT, baudRate);
+	</setup>
+</always>
+
+<default>
+	<setup>
+	serial$SERIAL_COUNT.bufferUntil('\n');
+	</setup>
+
+	<loop>
+	sendSerial$SERIAL_COUNT(mouseX)
+	</loop>
+
+	<functions>
+	// Receive serial data
+	void serialEvent(Serial whichPort) {
+		String data = whichPort.readStringUntil('\n');
+		println(data); 
+	}
+	
+	// Sending serial data
+	void sendSerial$SERIAL_COUNT(String data) {
+		serial$SERIAL_COUNT.write(data);
+	}
+	</functions>
+</default>
+
+</template>

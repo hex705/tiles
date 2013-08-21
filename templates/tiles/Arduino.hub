@@ -6,8 +6,9 @@ void setup() {
   $setup
 }
 
-void draw() {
-  $draw
+void loop() {
+  $loop
 }
 
 $functions
+

@@ -1,0 +1,26 @@
+<template>
+
+<unique>
+	<import>
+	<!-- need the include --> 	 
+	</import>
+	<variables>
+	int    baudRate = 9600; // set your baud rate	
+	</variables>
+	<setup>
+	Serial.begin(baudRate);
+	</setup>
+</unique>
+
+<default>
+	<setup>	
+	</setup>
+
+	<loop>
+	// sending a byte over serial 
+	
+	// receive a byte over serial 
+	</loop>
+</default>
+
+</template>
