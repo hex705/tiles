@@ -1,7 +1,5 @@
-// press S to pause on a snapshot
-// press any other key to resume live video
-
-//
+// Click to pause on a snapshot
+// Click again  to resume live video
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,10 +25,10 @@ import org.jgrapht.traverse.*;
 @SuppressWarnings({ "unused", "serial" })
 public class labelsANDgraph extends PApplet {
 
+	boolean debug_mode = false;
 	// String sample_image_location = "samples/M1000004b.png"; //location of image for debugging
 	String sample_image_location = "samples/M1000006.JPG"; 
 	float acceptable_distance = 4;
-	boolean debug_mode = true;
 	boolean debug_snapshot_done = false;
 	PImage sample;
 	
