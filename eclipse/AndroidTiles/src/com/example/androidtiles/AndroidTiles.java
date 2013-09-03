@@ -272,20 +272,19 @@ lastID = 0;
 		
 		emailScreen(); //get the user's email via a prompt
 		
-		try {
-			//sendToServer(getOutput()); TODO
+		/*try {
+			//sendToServer(getOutput()); 
 			Log.v("Xml",  (getOutput())); 
 		} catch (Exception e) {
 			//do nothing
 			e.printStackTrace();
-		}
+		}*/
 	}
 	
 		// for keyboard email entry
 		String typing = "";
 		String saved = "";
 	public void emailScreen() {
-		//TODO
 		EMAILSCREEN = true;
 		showVirtualKeyboard();
 	}
@@ -298,6 +297,14 @@ lastID = 0;
 			Log.v("Msg", "email: " + saved);
 			hideVirtualKeyboard();
 			EMAILSCREEN = false;
+
+			try {
+				//sendToServer(getOutput()); TODO
+				Log.v("Xml",  (getOutput(saved))); 
+			} catch (Exception e) {
+				//do nothing
+				e.printStackTrace();
+			}
 		} else if (key != CODED) {
 			typing = typing + key; // add key to the end of the in=progress string
 		}
@@ -317,10 +324,13 @@ lastID = 0;
 	}
 
 
-	public String getOutput() {
+	public String getOutput(String email) {
 		println("output:");		
 		// reload the output template every time		
 		output_template = loadXML("outputTemplate.xml");
+		// get email node
+			XML emailNode = output_template.getChild("email");
+			emailNode.setContent(email);
 		// adding all NODES
 			XML nodes = output_template.getChild("nodes");
 		for (Tile tiles : present_tiles) {
