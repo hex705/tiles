@@ -18,26 +18,24 @@ import org.jgrapht.generate.*;
 import org.jgrapht.graph.*;
 import org.jgrapht.traverse.*;
 
+import android.view.inputmethod.InputMethodManager;
+import android.content.Context;
+
 import android.content.Context;
 import android.hardware.Camera;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import processing.core.*;
-import android.content.Context;
-import android.hardware.Camera;
 import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import processing.core.*;
 import processing.data.XML;
-//import topcodes.TopCode;
 
 @SuppressWarnings("unused")
 public class AndroidTiles extends PApplet {
 	int MODE;
 	int CAPTURING = 0;
 	int SCREENSHOT = 1;
+	boolean EMAILSCREEN = false;
 	
 	float acceptable_distance = 4;
 	boolean debug_snapshot_done = false;
@@ -70,6 +68,8 @@ public class AndroidTiles extends PApplet {
 	public void setup() {
 		size(width, height);
 		frameRate(10);
+		
+		hideVirtualKeyboard();
 	  
 		imageMode(CENTER);
 		stroke(255);
@@ -118,6 +118,16 @@ lastID = 0;
 	}
 	
 	public void draw() {
+		if (EMAILSCREEN == true)  {
+			// draw text box
+			fill (255);
+			stroke(0);
+			rectMode (CENTER);
+			rect(width/2, height/10, width/2, 50);
+			// draw email text
+			fill(0);
+			text(typing, width/4 + 20, height/10 + 7);
+		}
 	}
 	
 	public List<TopCode> getTopcodes(PImage cam) {
@@ -260,15 +270,53 @@ lastID = 0;
 			}
 		}
 		
+		emailScreen(); //get the user's email via a prompt
+		
 		try {
 			//sendToServer(getOutput());
-			println(getOutput());
+			//println(getOutput());
 		} catch (Exception e) {
 			//do nothing
 			e.printStackTrace();
 		}
 	}
 	
+		// for keyboard email entry
+		String typing = "";
+		String saved = "";
+	public void emailScreen() {
+		//TODO
+		EMAILSCREEN = true;
+		showVirtualKeyboard();
+	}
+	
+	public void keyPressed() {
+		if (key == '\n'){ // on enter, print full string to console. this is where
+			saved = typing;
+			typing = "";
+			// call some output function
+			Log.v("Msg", "email: " + saved);
+			hideVirtualKeyboard();
+			EMAILSCREEN = false;
+		} else if (key != CODED) {
+			typing = typing + key; // add key to the end of the in=progress string
+		}
+		//Log.v("Msg", "key: " + key);
+		//Log.v("Msg",  typing);
+	}
+	
+	// keyboard functions from http://forum.processing.org/topic/show-hide-the-keyboard
+	void showVirtualKeyboard() {
+		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
+	}
+
+	void hideVirtualKeyboard() {
+		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+	}
+
+
 	public String getOutput() {
 		println("output:");		
 		// reload the output template every time		
@@ -357,13 +405,15 @@ lastID = 0;
 	
 	public void mousePressed() {
 		Log.v("Msg", "Touch");
-		if (MODE == CAPTURING) {
-			MODE = SCREENSHOT;
-		    snapShot(gBuffer); // make one SINGLE snapshot
-			makeGraph(gBuffer);
-		} else if (MODE == SCREENSHOT) {
-			MODE = CAPTURING;
-			//do stuff related to capturing
+		if (EMAILSCREEN == false) {
+			if (MODE == CAPTURING) {
+				MODE = SCREENSHOT;
+			    snapShot(gBuffer); // make one SINGLE snapshot
+				makeGraph(gBuffer);
+			} else if (MODE == SCREENSHOT) {
+				MODE = CAPTURING;
+				//do stuff related to capturing
+			}
 		}
 	}
 
@@ -418,6 +468,7 @@ lastID = 0;
 		    cam.stopPreview();
 		    cam.release();
 		    cam = null;
+		    hideVirtualKeyboard();
 		  }
 		
 		  //  Camera.PreviewCallback stuff: ------------------------------------------------------
@@ -430,8 +481,8 @@ lastID = 0;
 			    gBuffer.updatePixels();
 			    // Draw to screen:
 			    image(gBuffer, width/2,height/2); // draw cam image
-			  } 
 			  snapShot(gBuffer);
+			  } 
 		  }
 		
 		  //  Byte decoder : ---------------------------------------------------------------------
