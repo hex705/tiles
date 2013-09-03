@@ -273,8 +273,8 @@ lastID = 0;
 		emailScreen(); //get the user's email via a prompt
 		
 		try {
-			//sendToServer(getOutput());
-			//println(getOutput());
+			//sendToServer(getOutput()); TODO
+			Log.v("Xml",  (getOutput())); 
 		} catch (Exception e) {
 			//do nothing
 			e.printStackTrace();
