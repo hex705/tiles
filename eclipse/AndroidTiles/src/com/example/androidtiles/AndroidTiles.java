@@ -1,10 +1,5 @@
 package com.example.androidtiles;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.ArrayList;
 import java.util.*;
 
 import java.io.*;
@@ -299,8 +294,9 @@ lastID = 0;
 			EMAILSCREEN = false;
 
 			try {
-				//sendToServer(getOutput()); TODO
-				Log.v("Xml",  (getOutput(saved))); 
+				//sendToServer("hello weorlddddd");
+				sendToServer(getOutput(saved)); //TODO
+				//Log.v("Xml", (getOutput(saved)));
 			} catch (Exception e) {
 				//do nothing
 				e.printStackTrace();
@@ -322,7 +318,30 @@ lastID = 0;
 		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 	}
+	public void sendToServer(String message) throws Exception { // from http://docs.oracle.com/javase/tutorial/networking/urls/readingWriting.html
+		
+		String stringToSend = URLEncoder.encode(message, "UTF-8");
 
+        //URL url = new URL("http://imagearts.ryerson.ca/kathryn.hartog/tilesProcessor.php");
+		URL url = new URL("http://www.deadpixel.ca/tiles/template.cgi");
+        URLConnection connection = url.openConnection();
+        connection.setDoOutput(true);
+
+        OutputStreamWriter out = new OutputStreamWriter(
+                                         connection.getOutputStream());
+        out.write("message=" + stringToSend);
+        out.close();
+
+        BufferedReader in = new BufferedReader(
+                                    new InputStreamReader(
+                                    connection.getInputStream()));
+        String decodedString;
+        while ((decodedString = in.readLine()) != null) {
+            //System.out.println(decodedString);
+        	Log.v("Xml", decodedString);
+        }
+        in.close();
+	}
 
 	public String getOutput(String email) {
 		println("output:");		
@@ -362,7 +381,7 @@ lastID = 0;
 					
 					XML newPath = paths.addChild("path");
 					//iterate through graph from the hub
-					Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph, present); //TODO
+					Iterator<Tile> iter = new DepthFirstIterator<Tile, DefaultEdge>(tileGraph, present);
 			        Tile vertex;
 			        while (iter.hasNext()) {
 			            vertex = iter.next();
