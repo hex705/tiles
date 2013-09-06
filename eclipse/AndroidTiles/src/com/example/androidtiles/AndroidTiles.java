@@ -165,6 +165,8 @@ lastID = 0;
 		rectMode(CENTER);
 		
 		codes = getTopcodes(gBuffer);
+	    
+		image(gBuffer, width/2,height/2); // draw cam image
 
 			//println("present tiles:");
 		for (TopCode code : codes) {
@@ -292,11 +294,12 @@ lastID = 0;
 			Log.v("Msg", "email: " + saved);
 			hideVirtualKeyboard();
 			EMAILSCREEN = false;
+			//TODO
+			typing = "an email was sent";
+			MODE = CAPTURING;
 
 			try {
-				//sendToServer("hello weorlddddd");
-				sendToServer(getOutput(saved)); //TODO
-				//Log.v("Xml", (getOutput(saved)));
+				sendToServer(getOutput(saved)); 
 			} catch (Exception e) {
 				//do nothing
 				e.printStackTrace();
@@ -443,6 +446,10 @@ lastID = 0;
 				MODE = CAPTURING;
 				//do stuff related to capturing
 			}
+		} else {
+			if (mouseY < height/2) {
+				typing = "";
+			}
 		}
 	}
 
@@ -509,7 +516,7 @@ lastID = 0;
 			    decodeYUV420SP(gBuffer.pixels, data, prevSize.width, prevSize.height);
 			    gBuffer.updatePixels();
 			    // Draw to screen:
-			    image(gBuffer, width/2,height/2); // draw cam image
+			    //image(gBuffer, width/2,height/2); // draw cam image
 			  snapShot(gBuffer);
 			  } 
 		  }
