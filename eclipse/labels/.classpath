@@ -7,7 +7,6 @@
 	<classpathentry kind="lib" path="/processingLibs/libs/video/video.jar"/>
 	<classpathentry kind="lib" path="/processingLibs/libs/video/jna.jar"/>
 	<classpathentry kind="lib" path="/processingLibs/libs/video/gstreamer-java.jar"/>
-	<classpathentry kind="lib" path="libs/jgrapht/jgrapht-jdk1.6.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jgraph"/>
+	<classpathentry kind="lib" path="libs/jgrapht-jdk1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

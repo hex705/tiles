@@ -25,10 +25,10 @@ import org.jgrapht.traverse.*;
 @SuppressWarnings({ "unused", "serial" })
 public class labelsANDgraph extends PApplet {
 
-	boolean debug_mode = false;
+	boolean debug_mode = true;
 	// String sample_image_location = "samples/M1000004b.png"; //location of image for debugging
-	String sample_image_location = "samples/M1000006.JPG"; 
-	float acceptable_distance = 4;
+	String sample_image_location = "samples/20130906_203428.jpg"; 
+	float acceptable_distance = 3;
 	boolean debug_snapshot_done = false;
 	PImage sample;
 	
@@ -249,6 +249,7 @@ public class labelsANDgraph extends PApplet {
 
 			println("present tiles:");
 		for (TopCode code : codes) {
+			println(code.getCode());
 			String tileName = "";
 
 			int thisCode = code.getCode();
@@ -256,7 +257,8 @@ public class labelsANDgraph extends PApplet {
 				if (thisCode == tileset[i].topcodeID) {
 					tileName = tileset[i].topcodeID + " " + tileset[i].topcodeName;
 					println("    " + tileName);
-				} 
+				}
+				tileName = code.getCode() + "";
 
 			// drawing all the topcode boundaries and names
 			pushMatrix();

@@ -45,4 +45,12 @@
 		<name>OSC</name>
 		<connections L="6" R="3" T="4" B="5" />
 	</tile>	
+	<tile topcodeID="171" type="hub">
+		<name>Android</name>
+		<connections L="7" R="7" T="7" B="7" />
+	</tile>	
+	<tile topcodeID="173" type="data_transport">
+		<name>AND-Internet</name>
+		<connections L="7" R="5" />
+	</tile>	
 </tileset>
