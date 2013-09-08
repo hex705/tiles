@@ -122,6 +122,7 @@ lastID = 0;
 			// draw email text
 			fill(0);
 			text(typing, width/4 + 20, height/10 + 7);
+			fill(255);
 		}
 	}
 	
@@ -294,7 +295,7 @@ lastID = 0;
 			Log.v("Msg", "email: " + saved);
 			hideVirtualKeyboard();
 			EMAILSCREEN = false;
-			//TODO
+
 			typing = "an email was sent";
 			MODE = CAPTURING;
 

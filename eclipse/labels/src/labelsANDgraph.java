@@ -25,12 +25,18 @@ import org.jgrapht.traverse.*;
 @SuppressWarnings({ "unused", "serial" })
 public class labelsANDgraph extends PApplet {
 
-	boolean debug_mode = true;
+	boolean debug_mode = false;
+	
 	// String sample_image_location = "samples/M1000004b.png"; //location of image for debugging
-	String sample_image_location = "samples/20130906_203428.jpg"; 
+	String sample_image_location = "samples/M1020008.png"; 
 	float acceptable_distance = 3;
 	boolean debug_snapshot_done = false;
 	PImage sample;
+	
+	int MODE;
+	int CAPTURING = 0;
+	int SCREENSHOT = 1;
+	boolean EMAILSCREEN = false;
 	
 	XML xml;
 	XML output_template;
@@ -109,7 +115,7 @@ public class labelsANDgraph extends PApplet {
 				// Reads the new frame
 				cam.read();
 	
-				if (key == 's' || key == 'S') {
+				if (MODE == SCREENSHOT) {
 					//nothing happens; the keyPressed() event below will have been activated
 				} else { 
 					snapShot(cam); //this happens continuously as long as 'S' has not been pressed
@@ -124,21 +130,73 @@ public class labelsANDgraph extends PApplet {
 				debug_snapshot_done = true;
 			}
 		}
-	}
-	public void keyPressed() {
-		if (key == 's' || key == 'S') {
 		
-			snapShot(cam); //here it only happens once, when 'S' is pressed. Effectively pauses video capture.
-			makeGraph(cam); //only once, when the right frame is captured
-		}
-		
-		// For testing
-		if (key == ' ') {
-			try {
-				sendToServer(getOutput());
-			} catch (Exception e) { 
-				e.printStackTrace();
+		if (EMAILSCREEN == true)  {
+			// draw text box
+			fill (255);
+			stroke(0);
+			rectMode (CENTER);
+			rect(width/2, height/10, width/2, 50);
+			// draw email text
+			fill(0);
+			if (typing == "") {
+				text("enter email", width/4 + 20, height/10 + 7);
+			} else {
+				text(typing, width/4 + 20, height/10 + 7);
 			}
+			fill(255);
+		}
+	}
+		
+	String typing = "";
+	String saved = "";
+
+	public void emailScreen() {
+		typing = "";
+		EMAILSCREEN = true;
+	}
+	
+	public void keyPressed() { //TODO
+		if (EMAILSCREEN == false) {
+			if (key == 's' || key == 'S') {	
+				MODE = SCREENSHOT;
+				snapShot(cam); //here it only happens once, when 'S' is pressed. Effectively pauses video capture.
+				makeGraph(cam); //only once, when the right frame is captured
+			}
+			
+			// For testing
+			if (key == ' ') {
+				try {
+					//sendToServer(getOutput());
+				} catch (Exception e) { 
+					e.printStackTrace();
+				}
+			}
+		} else {
+			if (keyCode == ENTER || keyCode == RETURN){ // on enter, print full string to console. this is where
+				saved = typing;
+				// call some output function
+				println("email: " + saved);
+				EMAILSCREEN = false;
+	
+				try {
+					sendToServer(getOutput(saved));
+				} catch (Exception e) {
+					//do nothing
+					e.printStackTrace();
+				}
+
+				MODE = CAPTURING;
+			} else if (keyCode == BACKSPACE) {
+				if (typing.length() > 0) {
+					typing = typing.substring(0, typing.length() - 1);
+				}
+			} else if (key != CODED) {
+				typing = typing + key; // add key to the end of the in=progress string
+				//println(typing);
+			} 
+			//Log.v("Msg", "key: " + key);
+			//Log.v("Msg",  typing);
 		}
 	}
 	
@@ -222,14 +280,16 @@ public class labelsANDgraph extends PApplet {
 				}
 			}
 		}
-		
+
+		emailScreen(); //get the user's email via a prompt
+		/*
 		try {
 			//sendToServer(getOutput());
-			println(getOutput());
+			//println(getOutput());
 		} catch (Exception e) {
 			//do nothing
 			e.printStackTrace();
-		}
+		}*/
 	}
 	
 	public List<TopCode> getTopcodes(PImage img) {
@@ -249,7 +309,6 @@ public class labelsANDgraph extends PApplet {
 
 			println("present tiles:");
 		for (TopCode code : codes) {
-			println(code.getCode());
 			String tileName = "";
 
 			int thisCode = code.getCode();
@@ -258,7 +317,6 @@ public class labelsANDgraph extends PApplet {
 					tileName = tileset[i].topcodeID + " " + tileset[i].topcodeName;
 					println("    " + tileName);
 				}
-				tileName = code.getCode() + "";
 
 			// drawing all the topcode boundaries and names
 			pushMatrix();
@@ -272,11 +330,15 @@ public class labelsANDgraph extends PApplet {
 			}
 		}
 	}
+
 	
-	public String getOutput() {
+	public String getOutput(String email) {
 		println("output:");		
 		// reload the output template every time		
 		output_template = loadXML("outputTemplate.xml");
+		// get email node
+		XML emailNode = output_template.getChild("email");
+		emailNode.setContent(email);
 		// adding all NODES
 			XML nodes = output_template.getChild("nodes");
 		for (Tile tiles : present_tiles) {
@@ -356,7 +418,7 @@ public class labelsANDgraph extends PApplet {
 		
 		String stringToReverse = URLEncoder.encode(message, "UTF-8");
 
-        URL url = new URL("http://imagearts.ryerson.ca/kathryn.hartog/tilesProcessor.php");
+        URL url = new URL("http://www.deadpixel.ca/tiles/template.cgi");
         URLConnection connection = url.openConnection();
         connection.setDoOutput(true);
 
