@@ -308,6 +308,15 @@ lastID = 0;
 		} else if (key != CODED) {
 			typing = typing + key; // add key to the end of the in=progress string
 		}
+		// Don't know where these codes come from, or why they're not the same as in Processing desktop
+		else if (key == 65535) {
+			if (keyCode == 67) {  // 67 --> backspace				
+				if (typing.length() > 0) {
+					typing = typing.substring(0, typing.length() - 1);
+				}
+			}
+		}
+		
 		//Log.v("Msg", "key: " + key);
 		//Log.v("Msg",  typing);
 	}
