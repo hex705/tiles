@@ -318,15 +318,17 @@ public class labelsANDgraph extends PApplet {
 					println("    " + tileName);
 				}
 
-			// drawing all the topcode boundaries and names
-			pushMatrix();
-			stroke(0, 255, 0);
-			noFill();
-			translate(code.getCenterX(), code.getCenterY());
-			text(tileName, 0, 0);
-			rotate(code.getOrientation());
-			rect(0, 0, code.getDiameter(), code.getDiameter());
-			popMatrix();
+				// drawing all the topcode boundaries and names
+				pushMatrix();
+				stroke(255);
+				fill(255);
+				translate(code.getCenterX(), code.getCenterY());
+				text(tileName, 0, 0);
+				//rotate(code.getOrientation());
+				noStroke();
+				fill(0,255,0,20);
+				ellipse(0, 0, code.getDiameter(), code.getDiameter());
+				popMatrix();
 			}
 		}
 	}

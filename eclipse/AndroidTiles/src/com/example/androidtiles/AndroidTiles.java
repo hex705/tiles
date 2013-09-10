@@ -121,7 +121,11 @@ lastID = 0;
 			rect(width/2, height/10, width/2, 50);
 			// draw email text
 			fill(0);
-			text(typing, width/4 + 20, height/10 + 7);
+			if (typing == "") {
+				text("enter email", width/4 + 20, height/10 + 7);
+			} else {
+				text(typing, width/4 + 20, height/10 + 7);
+			}
 			fill(255);
 		}
 	}
@@ -179,14 +183,17 @@ lastID = 0;
 					tileName = tileset[i].topcodeID + " " + tileset[i].topcodeName;
 					println("    " + tileName);
 				}
+
 				// drawing all the topcode boundaries and names
 				pushMatrix();
-				stroke(0, 255, 0);
-				noFill();
+				stroke(255);
+				fill(255);
 				translate(code.getCenterX(), code.getCenterY());
 				text(tileName, 0, 0);
-				rotate(code.getOrientation());
-				rect(0, 0, code.getDiameter(), code.getDiameter());
+				//rotate(code.getOrientation());
+				noStroke();
+				fill(0,255,0,20);
+				ellipse(0, 0, code.getDiameter(), code.getDiameter());
 				popMatrix();
 
 			}
@@ -296,7 +303,6 @@ lastID = 0;
 			hideVirtualKeyboard();
 			EMAILSCREEN = false;
 
-			typing = "an email was sent";
 			MODE = CAPTURING;
 
 			try {
@@ -305,17 +311,18 @@ lastID = 0;
 				//do nothing
 				e.printStackTrace();
 			}
-		} else if (key != CODED) {
-			typing = typing + key; // add key to the end of the in=progress string
-		}
-		// Don't know where these codes come from, or why they're not the same as in Processing desktop
+		} // Don't know where these codes come from, or why they're not the same as in Processing desktop
 		else if (key == 65535) {
 			if (keyCode == 67) {  // 67 --> backspace				
 				if (typing.length() > 0) {
 					typing = typing.substring(0, typing.length() - 1);
 				}
 			}
+		} 
+		else if (key != CODED) {
+			typing = typing + key; // add key to the end of the in=progress string
 		}
+		
 		
 		//Log.v("Msg", "key: " + key);
 		//Log.v("Msg",  typing);
@@ -459,6 +466,7 @@ lastID = 0;
 		} else {
 			if (mouseY < height/2) {
 				typing = "";
+				showVirtualKeyboard();
 			}
 		}
 	}
