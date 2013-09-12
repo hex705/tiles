@@ -50,9 +50,10 @@ public class AndroidTiles extends PApplet {
 	
 	//misc.
 	int lastID;
+	Timer emailTimer = new Timer();
 
 	Scanner scanner; // top code scanner
-	List<TopCode> codes = new ArrayList<TopCode>();
+	//List<TopCode> codes = new ArrayList<TopCode>();
 	int[] pixels = null;
 	
 	// Set up camera globals:
@@ -62,7 +63,8 @@ public class AndroidTiles extends PApplet {
 	
 	public void setup() {
 		size(width, height);
-		frameRate(10);
+		frameRate(5);
+		message = "Tap to capture the current screen";
 		
 		hideVirtualKeyboard();
 	  
@@ -118,15 +120,47 @@ lastID = 0;
 			fill (255);
 			stroke(0);
 			rectMode (CENTER);
-			rect(width/2, height/10, width/2, 50);
+			rect(width/2, height/10 + 20, width/2, 50);
 			// draw email text
 			fill(0);
-			if (typing == "") {
-				text("enter email", width/4 + 20, height/10 + 7);
-			} else {
-				text(typing, width/4 + 20, height/10 + 7);
-			}
+			text(typing, width/4 + 20, height/10 + 27);
 			fill(255);
+		}
+		emailTimer.update();
+	}
+
+String message;
+	
+	void drawMessage() {
+		//drawing full-width black box for user instruction
+		fill(0,0,0,128);
+		noStroke();
+		rectMode(CORNER);
+		rect(0,0, width, 40);
+		fill(255);
+		text(message, 20, 27);
+	}
+
+	public class Timer {
+		int timeLeft;
+		int startTime;
+		boolean active;
+		
+		void start(int duration) {
+			startTime = millis();
+			timeLeft = duration;
+			active = true;
+		}
+		void update() {
+			if (millis() - startTime > timeLeft) {
+				timerEnd(this);
+				active = false;
+			}
+		}	
+	}
+	void timerEnd(Timer t) {
+		if (emailTimer.active == false && MODE == CAPTURING) {
+			message = "Tap to capture the current screen";
 		}
 	}
 	
@@ -145,13 +179,14 @@ lastID = 0;
 		if (pixels == null) pixels = new int[cam.pixels.length];
 		System.arraycopy(cam.pixels, 0, pixels, 0, cam.pixels.length);
 
-		codes = scanner.scan(pixels, cam.width, cam.height);
+		List<TopCode> codes = scanner.scan(pixels, cam.width, cam.height);
 		
 		// draw the codes (if any)
+		/*
 		rectMode(CENTER);
 		stroke(0, 255, 0);
 		noFill();
-		/*for (TopCode code : codes) {
+		for (TopCode code : codes) {
 			pushMatrix();
 			translate(code.getCenterX(), code.getCenterY());
 			text(code.getCode(), 0, 0);
@@ -164,14 +199,17 @@ lastID = 0;
 		return codes;
 	}
 	
-	public void snapShot(PImage img) {
+	public void snapShot(PImage img, List<TopCode> codes) {
 		//normal behaviour: live video with topcodes being identified
 		//image(cam, 0, 0);
-		rectMode(CENTER);
+		rectMode(CORNER);
 		
-		codes = getTopcodes(gBuffer);
+		//codes = getTopcodes(gBuffer);
 	    
-		image(gBuffer, width/2,height/2); // draw cam image
+		pushMatrix();
+		scale(2);
+		image(gBuffer, width/4,height/4); // draw cam image
+		popMatrix();
 
 			//println("present tiles:");
 		for (TopCode code : codes) {
@@ -182,31 +220,35 @@ lastID = 0;
 				if (thisCode == tileset[i].topcodeID) {
 					tileName = tileset[i].topcodeID + " " + tileset[i].topcodeName;
 					println("    " + tileName);
-				}
 
 				// drawing all the topcode boundaries and names
 				pushMatrix();
-				stroke(255);
-				fill(255);
+				scale(2);
 				translate(code.getCenterX(), code.getCenterY());
-				text(tileName, 0, 0);
 				//rotate(code.getOrientation());
 				noStroke();
-				fill(0,255,0,20);
+				fill(0,255,0,128);
 				ellipse(0, 0, code.getDiameter(), code.getDiameter());
+				stroke(255);
+				fill(255);
+				scale(1/2);
+				text(tileName, 0, 0);
 				popMatrix();
-
+				}
 			}
 		}
 	}
-	public void makeGraph(PImage img) {
+	public void makeGraph(List<TopCode> codes, boolean graphFunctions) {
+		snapShot(gBuffer, codes); 
+		drawMessage();
+		
 		// remove all vertices from graph (reverting it to an empty state)
 		for (int i = 0; i < present_tiles.length; i ++) {
 			tileGraph.removeVertex(present_tiles[i]);
 		}
 		
 		// get all the topcodes from the snapshot
-		List<TopCode> codes = getTopcodes(img);
+		//List<TopCode> codes = getTopcodes(img);
 		
 		lastID =  0; // reset lastID
 
@@ -238,48 +280,67 @@ lastID = 0;
 				} 
 			}
 		}
-		
-		for (Tile tiles : present_tiles) {
-			// add all present_tiles as vertices to the graph
-			tileGraph.addVertex(tiles);
-			// print out all the tiles
-			Log.v ("Msg", "Present-tile: " + tiles.toString());
+		if (graphFunctions == true) {
+			for (Tile tiles : present_tiles) {
+				// add all present_tiles as vertices to the graph
+				tileGraph.addVertex(tiles);
+				// print out all the tiles
+				//println(tiles.toString());
+			}
 		}
 		
-		// get distances between tiles
-		for (Tile tile1 : present_tiles) {
-			for (int tile1c : tile1.connections) { //cycle through every connection on tile1
-				float shortest_distance = acceptable_distance*tile1.diameter; // for determining the closest tile
-				Tile short_tile = null;
-				for (Tile tile2 : present_tiles) {
-					float distance = dist (tile1.centerX, tile1.centerY, 
-					tile2.centerX, tile2.centerY);
-				
-					if (distance > 0 && distance < tile1.diameter*acceptable_distance) { //they are close enough
-						for (int tile2c : tile2.connections) { //cycle through tile2 connections
-							if (tile1c == tile2c && tile1c != 0) {
-								if (distance < shortest_distance) {
-									shortest_distance = distance;
-									short_tile = tile2;
+		if (present_tiles.length > 1) { // only do edge things if more than one tile is present
+			// get distances between tiles
+			for (Tile tile1 : present_tiles) {
+				for (int tile1c : tile1.connections) { //cycle through every connection on tile1
+					float shortest_distance = acceptable_distance*tile1.diameter; // for determining the closest tile
+					Tile short_tile = null;
+					for (Tile tile2 : present_tiles) {
+						float distance = dist (tile1.centerX, tile1.centerY, 
+						tile2.centerX, tile2.centerY);
+					
+						if (distance > 0 && distance < tile1.diameter*acceptable_distance) { //they are close enough
+							for (int tile2c : tile2.connections) { //cycle through tile2 connections
+								if (tile1c == tile2c && tile1c != 0) {
+									//println(tile1c);
+									//println(distance);
+									if (distance < shortest_distance) {
+										shortest_distance = distance;
+										short_tile = tile2;
+									}
 								}
 							}
 						}
 					}
-				}
-				if (short_tile != null) {							
-					//make edge between the two things (that are the closest)
-					tileGraph.addEdge(tile1, short_tile); 
-					//edge visualization
-					line(tile1.centerX,tile1.centerY,short_tile.centerX,short_tile.centerY);
+					if (short_tile != null) {
+						//println(shortest_distance);
+						//println(tile1.toString() + " " + short_tile.toString());
+								
+						//make edge between the two things (that are the closest)
+						if (graphFunctions == true) {
+							tileGraph.addEdge(tile1, short_tile);
+						}
+						//edge visualization
+						pushStyle();
+						pushMatrix();
+						scale(2);
+						stroke(0, 255, 0);
+						strokeWeight(4);
+						line(tile1.centerX,tile1.centerY,short_tile.centerX,short_tile.centerY);
+						popMatrix();
+						popStyle();
+					}
 				}
 			}
 		}
-		
-		emailScreen(); //get the user's email via a prompt
-		
-		/*try {
-			//sendToServer(getOutput()); 
-			Log.v("Xml",  (getOutput())); 
+
+		if (graphFunctions == true) {
+			emailScreen(); //get the user's email via a prompt
+		}
+		/*
+		try {
+			//sendToServer(getOutput());
+			//println(getOutput());
 		} catch (Exception e) {
 			//do nothing
 			e.printStackTrace();
@@ -300,6 +361,8 @@ lastID = 0;
 			typing = "";
 			// call some output function
 			Log.v("Msg", "email: " + saved);
+			emailTimer.start(5000);
+			message = "check your email for code templates";
 			hideVirtualKeyboard();
 			EMAILSCREEN = false;
 
@@ -457,11 +520,11 @@ lastID = 0;
 		if (EMAILSCREEN == false) {
 			if (MODE == CAPTURING) {
 				MODE = SCREENSHOT;
-			    snapShot(gBuffer); // make one SINGLE snapshot
-				makeGraph(gBuffer);
+				message = "enter your email address";
+				List<TopCode> codes = getTopcodes(gBuffer);
+				makeGraph(codes, true);
 			} else if (MODE == SCREENSHOT) {
-				MODE = CAPTURING;
-				//do stuff related to capturing
+				MODE = CAPTURING; //continuous video
 			}
 		} else {
 			if (mouseY < height/2) {
@@ -469,6 +532,16 @@ lastID = 0;
 				showVirtualKeyboard();
 			}
 		}
+	}
+	public void stop() {
+	    // Give the cam back to the phone:
+		gCamSurfView.cam.stopPreview();
+		gCamSurfView.cam.release();
+		gCamSurfView.cam = null;
+		
+    hideVirtualKeyboard();
+    
+    super.stop();
 	}
 
 	// camera stuff is from http://www.akeric.com/blog/?p=1342
@@ -505,7 +578,7 @@ lastID = 0;
 		    cam.setPreviewCallback(this);
 		
 		    Camera.Parameters parameters = cam.getParameters();
-		    parameters.setPreviewSize(displayWidth, displayHeight);
+		    parameters.setPreviewSize(displayWidth/2, displayHeight/2);
 		    cam.setParameters(parameters);
 		    // Find our preview size, and init our global PImage:
 		    prevSize = parameters.getPreviewSize();
@@ -535,7 +608,12 @@ lastID = 0;
 			    gBuffer.updatePixels();
 			    // Draw to screen:
 			    //image(gBuffer, width/2,height/2); // draw cam image
-			  snapShot(gBuffer);
+				List<TopCode> codes = getTopcodes(gBuffer);
+			  	try{
+					makeGraph(codes, false);
+				} catch(NullPointerException e) {
+					Log.e("Msg", "error: " + e);
+				}
 			  } 
 		  }
 		

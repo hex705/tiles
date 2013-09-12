@@ -54,9 +54,11 @@ public class labelsANDgraph extends PApplet {
 	
 	//misc.
 	int lastID;
+	Timer emailTimer = new Timer();
 
 	public void setup() {
 		lastID = 0;
+		message = "press S to capture the current screen";
 		
 		// xml stuff
 		xml = loadXML("tileset.xml");
@@ -118,34 +120,48 @@ public class labelsANDgraph extends PApplet {
 				if (MODE == SCREENSHOT) {
 					//nothing happens; the keyPressed() event below will have been activated
 				} else { 
-					snapShot(cam); //this happens continuously as long as 'S' has not been pressed
+					List<TopCode> codes = getTopcodes(cam);
+					try{
+						makeGraph(cam, codes, false);
+					} catch(NullPointerException e) {
+						println("error: " + e);
+					}
 				}
 			}
-		} 
+		}
 		else { //debug_mode is true; we are using an image instead of live video
 			if (debug_snapshot_done == false) {
 				image(sample,0,0);
-				snapShot(sample);
-				makeGraph(sample);
+				List<TopCode> codes = getTopcodes(sample);
+				makeGraph(sample, codes, true);
 				debug_snapshot_done = true;
 			}
 		}
 		
 		if (EMAILSCREEN == true)  {
-			// draw text box
+			// draw text box TODO
 			fill (255);
 			stroke(0);
 			rectMode (CENTER);
-			rect(width/2, height/10, width/2, 50);
+			rect(width/2, 70, width*4/5, 40);
 			// draw email text
 			fill(0);
-			if (typing == "") {
-				text("enter email", width/4 + 20, height/10 + 7);
-			} else {
-				text(typing, width/4 + 20, height/10 + 7);
-			}
+			text(typing, width/10 + 20, height/10 + 27);			
 			fill(255);
 		}
+		emailTimer.update();
+	}
+	
+	String message;
+	
+	public void drawMessage() {
+		//drawing full-width black box for messages
+		fill(0,0,0,128);
+		noStroke();
+		rectMode(CORNER);
+		rect(0,0, width, 40);
+		fill(255);
+		text(message, 20, 23);
 	}
 		
 	String typing = "";
@@ -156,12 +172,13 @@ public class labelsANDgraph extends PApplet {
 		EMAILSCREEN = true;
 	}
 	
-	public void keyPressed() { //TODO
+	public void keyPressed() { 
 		if (EMAILSCREEN == false) {
 			if (key == 's' || key == 'S') {	
 				MODE = SCREENSHOT;
-				snapShot(cam); //here it only happens once, when 'S' is pressed. Effectively pauses video capture.
-				makeGraph(cam); //only once, when the right frame is captured
+				message = "enter your email address";
+				List<TopCode> codes = getTopcodes(cam);
+				makeGraph(cam, codes, true); //only once, when the right frame is captured
 			}
 			
 			// For testing
@@ -177,6 +194,8 @@ public class labelsANDgraph extends PApplet {
 				saved = typing;
 				// call some output function
 				println("email: " + saved);
+				emailTimer.start(5000);
+				message = "check your email for code templates";
 				EMAILSCREEN = false;
 	
 				try {
@@ -200,14 +219,16 @@ public class labelsANDgraph extends PApplet {
 		}
 	}
 	
-	public void makeGraph(PImage img) {
+	public void makeGraph(PImage img, List<TopCode> codes, boolean graphFunctions) {
+
+		snapShot(img, codes); 
 		// remove all vertices from graph (reverting it to an empty state)
 		for (int i = 0; i < present_tiles.length; i ++) {
 			tileGraph.removeVertex(present_tiles[i]);
 		}
 		
 		// get all the topcodes from the snapshot
-		List<TopCode> codes = getTopcodes(img);
+		//List<TopCode> codes = getTopcodes(img);
 		
 		lastID =  0; // reset lastID
 
@@ -239,49 +260,61 @@ public class labelsANDgraph extends PApplet {
 				} 
 			}
 		}
-		
-		for (Tile tiles : present_tiles) {
-			// add all present_tiles as vertices to the graph
-			tileGraph.addVertex(tiles);
-			// print out all the tiles
-			//println(tiles.toString());
+		if (graphFunctions == true) {
+			for (Tile tiles : present_tiles) {
+				// add all present_tiles as vertices to the graph
+				tileGraph.addVertex(tiles);
+				// print out all the tiles
+				//println(tiles.toString());
+			}
 		}
 		
-		// get distances between tiles
-		for (Tile tile1 : present_tiles) {
-			for (int tile1c : tile1.connections) { //cycle through every connection on tile1
-				float shortest_distance = acceptable_distance*tile1.diameter; // for determining the closest tile
-				Tile short_tile = null;
-				for (Tile tile2 : present_tiles) {
-					float distance = dist (tile1.centerX, tile1.centerY, 
-					tile2.centerX, tile2.centerY);
-				
-					if (distance > 0 && distance < tile1.diameter*acceptable_distance) { //they are close enough
-						for (int tile2c : tile2.connections) { //cycle through tile2 connections
-							if (tile1c == tile2c && tile1c != 0) {
-								//println(tile1c);
-								//println(distance);
-								if (distance < shortest_distance) {
-									shortest_distance = distance;
-									short_tile = tile2;
+		if (present_tiles.length > 1) { // only do edge things if more than one tile is present
+			// get distances between tiles
+			for (Tile tile1 : present_tiles) {
+				for (int tile1c : tile1.connections) { //cycle through every connection on tile1
+					float shortest_distance = acceptable_distance*tile1.diameter; // for determining the closest tile
+					Tile short_tile = null;
+					for (Tile tile2 : present_tiles) {
+						float distance = dist (tile1.centerX, tile1.centerY, 
+						tile2.centerX, tile2.centerY);
+					
+						if (distance > 0 && distance < tile1.diameter*acceptable_distance) { //they are close enough
+							for (int tile2c : tile2.connections) { //cycle through tile2 connections
+								if (tile1c == tile2c && tile1c != 0) {
+									//println(tile1c);
+									//println(distance);
+									if (distance < shortest_distance) {
+										shortest_distance = distance;
+										short_tile = tile2;
+									}
 								}
 							}
 						}
 					}
-				}
-				if (short_tile != null) {
-					//println(shortest_distance);
-					//println(tile1.toString() + " " + short_tile.toString());
-							
-					//make edge between the two things (that are the closest)
-					tileGraph.addEdge(tile1, short_tile);
-					//edge visualization
-					line(tile1.centerX,tile1.centerY,short_tile.centerX,short_tile.centerY);
+					if (short_tile != null) {
+						//println(shortest_distance);
+						//println(tile1.toString() + " " + short_tile.toString());
+								
+						//make edge between the two things (that are the closest)
+						if (graphFunctions == true) {
+							tileGraph.addEdge(tile1, short_tile);
+						}
+						//edge visualization
+						pushStyle();
+						stroke(0, 255, 0);
+						strokeWeight(4);
+						line(tile1.centerX,tile1.centerY,short_tile.centerX,short_tile.centerY);
+						popStyle();
+						println("line is made");
+					}
 				}
 			}
 		}
 
-		emailScreen(); //get the user's email via a prompt
+		if (graphFunctions == true) {
+			emailScreen(); //get the user's email via a prompt
+		}
 		/*
 		try {
 			//sendToServer(getOutput());
@@ -300,12 +333,13 @@ public class labelsANDgraph extends PApplet {
 		return scanner.scan(pixels, img.width, img.height);
 	}
 
-	public void snapShot(PImage img) {
+	public void snapShot(PImage img, List<TopCode> codes) {
 		//normal behaviour: live video with topcodes being identified
 		image(cam, 0, 0);
+		drawMessage();
 		rectMode(CENTER);		
 		
-		List<TopCode> codes = getTopcodes(img);
+		//List<TopCode> codes = getTopcodes(img);
 
 			println("present tiles:");
 		for (TopCode code : codes) {
@@ -318,7 +352,7 @@ public class labelsANDgraph extends PApplet {
 					println("    " + tileName);
 				}
 
-				// drawing all the topcode boundaries and names
+				// drawing all the topcode boundaries and names 
 				pushMatrix();
 				stroke(255);
 				fill(255);
@@ -333,6 +367,28 @@ public class labelsANDgraph extends PApplet {
 		}
 	}
 
+	public class Timer {
+		int timeLeft;
+		int startTime;
+		boolean active;
+		
+		void start(int duration) {
+			startTime = millis();
+			timeLeft = duration;
+			active = true;
+		}
+		void update() {
+			if (millis() - startTime > timeLeft) {
+				timerEnd(this);
+				active = false;
+			}
+		}	
+	}
+	void timerEnd(Timer t) {
+		if (emailTimer.active == false && MODE == CAPTURING) {
+			message = "press S to capture the current screen";
+		}
+	}
 	
 	public String getOutput(String email) {
 		println("output:");		
