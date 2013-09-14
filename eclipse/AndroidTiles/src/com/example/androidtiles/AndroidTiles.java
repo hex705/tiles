@@ -5,6 +5,7 @@ import java.util.*;
 import java.io.*;
 import java.net.*;
 
+import org.apache.http.HttpException;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 import org.jgrapht.traverse.DepthFirstIterator;
@@ -51,6 +52,7 @@ public class AndroidTiles extends PApplet {
 	//misc.
 	int lastID;
 	Timer emailTimer = new Timer();
+	float scaleRatio;
 
 	Scanner scanner; // top code scanner
 	//List<TopCode> codes = new ArrayList<TopCode>();
@@ -75,6 +77,8 @@ public class AndroidTiles extends PApplet {
 		scanner = new Scanner();
 		
 lastID = 0;
+scaleRatio = (float) (displayWidth/640.0); // amount to scale video so it occupies whole width of screen
+Log.v("Msg", "displayWidth: " + displayWidth + " scaleRatio: " + scaleRatio);
 		
 		// xml stuff
 		xml = loadXML("tileset.xml");
@@ -123,7 +127,7 @@ lastID = 0;
 			rect(width/2, height/10 + 20, width/2, 50);
 			// draw email text
 			fill(0);
-			text(typing, width/4 + 20, height/10 + 27);
+			text(typing + "_", width/4 + 20, height/10 + 27);
 			fill(255);
 		}
 		emailTimer.update();
@@ -207,8 +211,9 @@ String message;
 		//codes = getTopcodes(gBuffer);
 	    
 		pushMatrix();
-		scale(2);
-		image(gBuffer, width/4,height/4); // draw cam image
+		scale(scaleRatio/1);
+		imageMode(CORNER);
+		image(gBuffer, 0,0); // draw cam image
 		popMatrix();
 
 			//println("present tiles:");
@@ -223,7 +228,7 @@ String message;
 
 				// drawing all the topcode boundaries and names
 				pushMatrix();
-				scale(2);
+				scale(scaleRatio/1);
 				translate(code.getCenterX(), code.getCenterY());
 				//rotate(code.getOrientation());
 				noStroke();
@@ -231,7 +236,7 @@ String message;
 				ellipse(0, 0, code.getDiameter(), code.getDiameter());
 				stroke(255);
 				fill(255);
-				scale(1/2);
+				scale(1/scaleRatio);
 				text(tileName, 0, 0);
 				popMatrix();
 				}
@@ -323,7 +328,7 @@ String message;
 						//edge visualization
 						pushStyle();
 						pushMatrix();
-						scale(2);
+						scale(scaleRatio/1);
 						stroke(0, 255, 0);
 						strokeWeight(4);
 						line(tile1.centerX,tile1.centerY,short_tile.centerX,short_tile.centerY);
@@ -369,10 +374,15 @@ String message;
 			MODE = CAPTURING;
 
 			try {
-				sendToServer(getOutput(saved)); 
+				if (saved.equals("")) {
+					Log.v("Msg", "no email was given");
+				} else {
+					sendToServer(getOutput(saved)); 
+				}
 			} catch (Exception e) {
 				//do nothing
 				e.printStackTrace();
+				Log.e("Msg", "Error sending to server: " + e);
 			}
 		} // Don't know where these codes come from, or why they're not the same as in Processing desktop
 		else if (key == 65535) {
@@ -520,7 +530,7 @@ String message;
 		if (EMAILSCREEN == false) {
 			if (MODE == CAPTURING) {
 				MODE = SCREENSHOT;
-				message = "enter your email address";
+				message = "enter your email address, then press enter";
 				List<TopCode> codes = getTopcodes(gBuffer);
 				makeGraph(codes, true);
 			} else if (MODE == SCREENSHOT) {
@@ -578,7 +588,9 @@ String message;
 		    cam.setPreviewCallback(this);
 		
 		    Camera.Parameters parameters = cam.getParameters();
-		    parameters.setPreviewSize(displayWidth/2, displayHeight/2);
+		    parameters.setPreviewSize(640, 480);
+		    scaleRatio = 1;
+		    //scaleRatio = displayWidth/640; // amount to scale video so it occupies whole width of screen
 		    cam.setParameters(parameters);
 		    // Find our preview size, and init our global PImage:
 		    prevSize = parameters.getPreviewSize();
