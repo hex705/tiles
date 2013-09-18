@@ -10,12 +10,8 @@
 		<connections L="1" R="5" />
 	</tile>	
 	<tile topcodeID="61" type="data_transport">
-		<name>ARD-Internet</name>
-		<connections R="5" T="2" />
-	</tile>	
-	<tile topcodeID="79" type="data_transport">
 		<name>ARD-Wifi</name>
-		<connections L="5" T="2" />
+		<connections R="5" T="2" />
 	</tile>	
 	<tile topcodeID="93" type="data_transport">
 		<name>ARD-Ethernet</name>

@@ -7,7 +7,7 @@
 <!-- this will always get included once per hub, for each instances of this tile --> 
 <unique> 
 	<imports></imports>
-	<variables</variables>
+	<variables></variables>
 	<setup></setup>
 	<loop></loop>
 	<functions></functions>	
@@ -16,7 +16,7 @@
 <!-- this will always get included in the template --> 
 <always>
 	<imports></imports>
-	<variables</variables>
+	<variables></variables>
 	<setup></setup>
 	<loop></loop>
 	<functions></functions>
@@ -24,7 +24,7 @@
 
 <!-- this will get overwritten by subsequent tiles --> 
 <default>
-	<variables</variables>
+	<variables></variables>
 	<setup></setup>
 	<loop></loop>
 	<functions></functions>

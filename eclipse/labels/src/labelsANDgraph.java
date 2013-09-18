@@ -28,7 +28,8 @@ public class labelsANDgraph extends PApplet {
 	boolean debug_mode = false;
 	
 	// String sample_image_location = "samples/M1000004b.png"; //location of image for debugging
-	String sample_image_location = "samples/M1020008.png"; 
+	//String sample_image_location = "samples/M1020008.png"; 
+	
 	float acceptable_distance = 3;
 	boolean debug_snapshot_done = false;
 	PImage sample;
@@ -455,7 +456,7 @@ public class labelsANDgraph extends PApplet {
 			}
 		}		
 		String output = output_template.format(4);
-		//println(output_template); // prints xml file
+		println(output_template); // prints xml file
 		
 		return output;
 	}
