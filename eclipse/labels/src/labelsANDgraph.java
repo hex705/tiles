@@ -147,7 +147,7 @@ public class labelsANDgraph extends PApplet {
 			rect(width/2, 70, width*4/5, 40);
 			// draw email text
 			fill(0);
-			text(typing, width/10 + 20, height/10 + 27);			
+			text(typing + "_", width/10 + 20, height/10 + 27);			
 			fill(255);
 		}
 		emailTimer.update();
@@ -200,7 +200,11 @@ public class labelsANDgraph extends PApplet {
 				EMAILSCREEN = false;
 	
 				try {
-					sendToServer(getOutput(saved));
+					if (saved.equals("")) {
+						println("no email was given");
+					} else {
+						sendToServer(getOutput(saved)); 
+					}
 				} catch (Exception e) {
 					//do nothing
 					e.printStackTrace();
@@ -307,7 +311,7 @@ public class labelsANDgraph extends PApplet {
 						strokeWeight(4);
 						line(tile1.centerX,tile1.centerY,short_tile.centerX,short_tile.centerY);
 						popStyle();
-						println("line is made");
+						//println("line is made");
 					}
 				}
 			}
