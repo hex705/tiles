@@ -3,9 +3,9 @@
 <counter>$SERIAL_COUNT</counter>
 
 <unique>
-	<import>
+	<imports>
 	import processing.serial.*;
-	</import>
+	</imports>
 	<setup>
 	// You'll find your serial device in this list 
 	println(Serial.list());	
@@ -25,11 +25,12 @@
 
 <default>
 	<setup>
-	serial$SERIAL_COUNT.bufferUntil('\n');
+	//Use this if your data is separated by new lines ('\n') 
+	//serial$SERIAL_COUNT.bufferUntil('\n');
 	</setup>
 
 	<loop>
-	sendSerial$SERIAL_COUNT(mouseX)
+	sendSerial$SERIAL_COUNT(mouseX);
 	</loop>
 
 	<functions>

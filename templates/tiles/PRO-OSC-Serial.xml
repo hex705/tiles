@@ -3,9 +3,9 @@
 <counter>$OSC_COUNT</counter>
 
 <unique>
-	<import>
+	<imports>
 	import oscP5.*;
-	</import>
+	</imports>
 	
 	<functions>
 	void oscEvent(OscMessage incoming) {
@@ -26,7 +26,7 @@
 	osc$OSC_COUNT.begin(serial$SERIAL_COUNT); 
 	</setup>
 	<loop>
-	OscMessage msg = new OscMessage("/test");
+	OscMessage msg = new OscMessage("/outgoing");
 	msg.add(mouseX);
 	osc$OSC_COUNT.send(msg);
 	</loop>	 

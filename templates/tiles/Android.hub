@@ -1,4 +1,4 @@
-$imports
+$import
 
 $variables
 
@@ -6,9 +6,8 @@ void setup() {
   $setup
 }
 
-void loop() {
+void draw() {
   $loop
 }
 
 $functions
-

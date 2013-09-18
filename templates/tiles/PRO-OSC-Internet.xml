@@ -1,46 +1,64 @@
 <template>
 
+<counter>$OSC_COUNT</counter>
+
 <unique>
-	<import>
-	import processing.serial.*;
-	</import>
-	<setup>
-	// You'll find your serial device in this list 
-	println(Serial.list());	
+	<imports>
+	import oscP5.*;
+	</imports>
+	
+	<variables>
+	OscP5 osc; 
+	int myPort = 12000;	
+	</variables>
+	
+	<setup>	
+	osc = new OscP5(this, myPort);	
 	</setup>
+	
+	<functions>
+	void oscEvent(OscMessage incoming) {
+		// all the received messages come here
+		println(incoming);
+	}
+	</functions>
+	
 </unique>
 
 <always>
-	<variables>
-	Serial serial$count;
-	String serialName$COUNT = "/dev/tty.usbxxxxxx"; // put the name of your serial port
-	int    baudRate = 9600; // set your baud rate	
+	<variables>	
+	// Someone to talk to
+	NetAddress  destination$OSC_COUNT;  
+	String      destinationIP$OSC_COUNT = "192.168.0.180";
+	int         destinationPort$OSC_COUNT = 12001;   	
 	</variables>
+	
+	<loop> 
+	OscMessage msg = new OscMessage("/outgoing");
+	msg.add(mouseX); // this could be any data 
+	osc.send(msg, destination$OSC_COUNT);
+	</loop>
+	
 	<setup>
-	serial$COUNT = new Serial(this, serialName$COUNT, baudRate);
+	destination$OSC_COUNT = new NetAddress(destinationIP, destinationPort);
 	</setup>
 </always>
 
 <default>
 	<setup>
-	serial$COUNT.bufferUntil('\n');
+	<!-- left blank to erase the code from PRO-Internet -->
 	</setup>
 
+	<variables>
+	<!-- left blank to erase the code from PRO-Internet -->
+	</variables>
+
 	<loop>
-	sendSerial$COUNT(mouseX)
+	<!-- left blank to erase the code from PRO-Internet -->	
 	</loop>
 
 	<functions>
-	// Receive serial data
-	void serialEvent(Serial whichPort) {
-		String data = whichPort.readStringUntil('\n');
-		println(data); 
-	}
-	
-	// Sending serial data
-	void sendSerial$COUNT(String data) {
-		serial$count.write(data);
-	}
+	<!-- left blank to erase the code from PRO-Internet -->
 	</functions>
 </default>
 
