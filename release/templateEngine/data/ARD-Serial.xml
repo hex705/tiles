@@ -1,0 +1,42 @@
+<template>
+
+<!-- this will always get included once per hub, for each instances of this tile --> 
+<unique> 
+	<imports></imports>
+	<variables></variables>
+	<setup>
+	Serial.begin(9600);
+	</setup>
+	<loop></loop>
+	<functions></functions>	
+</unique>
+
+<!-- this will always get included in the template --> 
+<always>
+	<imports></imports>
+	<variables></variables>
+	<setup></setup>
+	<loop></loop>
+	<functions></functions>
+</always>
+
+<!-- this will get overwritten by subsequent tiles --> 
+<default>
+	<variables></variables>
+	<setup>	
+	</setup>
+	<loop>
+	// how to send
+	Serial.print(0); // sends the number 0 over the serial port
+	
+	// how to receive
+	while (Serial.available()) {
+		byte b = Serial.read(); 
+	}
+	
+	delay(10);
+	</loop>
+	<functions></functions>
+</default>
+
+</template>

@@ -1,0 +1,35 @@
+<template>
+
+<counter>$OSC_COUNT</counter>
+
+<unique>
+	<imports>
+	import oscP5.*;
+	</imports>
+	
+	<functions>
+	void oscEvent(OscMessage incoming) {
+		print(incoming);
+	}
+	</functions>
+	
+</unique>
+
+<always></always>
+
+<!-- overwritting the default --> 
+<default>
+	<variables>
+	OscSerial osc$OSC_COUNT;
+	</variables>
+	<setup>	
+	osc$OSC_COUNT.begin(serial$SERIAL_COUNT); 
+	</setup>
+	<loop>
+	OscMessage msg = new OscMessage("/outgoing");
+	msg.add(mouseX);
+	osc$OSC_COUNT.send(msg);
+	</loop>	 
+</default>
+
+</template>

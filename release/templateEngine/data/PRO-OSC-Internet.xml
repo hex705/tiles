@@ -1,0 +1,73 @@
+<template>
+
+<counter>$OSC_COUNT</counter>
+
+<unique>
+	<imports>
+	import oscP5.*;
+	</imports>
+	
+	<variables>
+	OscP5 osc; 
+	int myPort = 12000;	
+	
+	</variables>
+	
+	<setup>	
+	osc = new OscP5(this, myPort);	
+	</setup>
+	
+	<functions>
+	void oscEvent(OscMessage incoming) {
+		// all the received messages come here
+		println(incoming);
+	}
+	</functions>	
+</unique>
+
+<always>
+	<variables>	
+	// Someone to talk to
+	NetAddress  destination$OSC_COUNT;  
+	String      destinationIP$OSC_COUNT = "192.168.0.180";
+	int         destinationPort$OSC_COUNT = 12001;   	
+	
+	</variables>
+	
+	<loop> 
+	send$OSC_COUNT();
+	
+	</loop>
+	
+	<setup>
+	destination$OSC_COUNT = new NetAddress(destinationIP$OSC_COUNT, destinationPort$OSC_COUNT);
+	</setup>
+	
+	<functions>
+	function sendOsc$OSC_COUNT() {
+		OscMessage msg = new OscMessage("/outgoing$OSC_COUNT");
+		msg.add(mouseX); // this could be any data 
+		osc.send(msg, destination$OSC_COUNT);
+	}	
+	</functions>
+</always>
+
+<default>
+	<setup>
+	<!-- left blank to erase the code from PRO-Internet -->
+	</setup>
+
+	<variables>
+	<!-- left blank to erase the code from PRO-Internet -->
+	</variables>
+
+	<loop>
+	<!-- left blank to erase the code from PRO-Internet -->	
+	</loop>
+
+	<functions>
+	<!-- left blank to erase the code from PRO-Internet -->
+	</functions>
+</default>
+
+</template>

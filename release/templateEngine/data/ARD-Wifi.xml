@@ -1,0 +1,86 @@
+<template>
+
+<!-- this will always get included once per hub, for each instances of this tile --> 
+<unique> 
+	<imports>
+	// IMPORTANT!!! I AM ASSUMING THIS IS THE SAME SETUP AS THE ETHERNET SHIELD FOR NOW
+	// THE CODE PROBABLY NEEDS TO BE UPDATED TO WORK WITH THE WIFI SHIELD
+		
+#include &lt;SPI.h&gt;        
+#include &lt;Ethernet.h&gt;        
+#include &lt;EthernetUdp.h&gt;        
+	</imports>
+	
+	<variables>
+	// arduino needs us to start ethernet, then start UDP
+	// http://arduino.cc/en/Reference/EthernetBegin
+	
+	// Enter a MAC address and IP address for your SHIELD.
+	// The IP address will be dependent on your local network	
+	byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+	
+	// listening IP ==  SHIELD initialization IP
+	// you need to set this
+	IPAddress ip(192, 168, 0, 180); 
+	
+	// The local port to listen on
+	unsigned int listeningPort = 12001;  
+	
+	// The IP address of a computer you are trying to reach
+	IPAddress destinationIP(192, 168, 0, 101);
+	int destinationPort = 12000;
+	
+	// setup a UDP object
+	EthernetUDP UDP;
+	</variables>
+	
+	<setup>
+	// start ethernet on the shield
+	Ethernet.begin(mac,ip);
+	// start UDP object, listening on port listeningPort
+	UDP.begin(listeningPort)  	
+	</setup>
+	
+	<loop>
+	</loop>
+	
+	<functions></functions>	
+</unique>
+
+<!-- this will always get included in the template --> 
+<always>
+	<imports></imports>
+	<variables></variables>
+	<setup></setup>
+	<loop></loop>
+	<functions></functions>
+</always>
+
+<!-- this will get overwritten by subsequent tiles --> 
+<default>
+	<variables>
+	// buffers for receiving and sending data
+	char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; //buffer to hold incoming packet,
+	char  ReplyBuffer[] = "acknowledged";       // a string to send back
+	</variables>
+	<setup></setup>
+	<loop>
+	// HOW TO RECEIVE DATA
+	// if there's data available, read a packet
+	int packetSize = Udp.parsePacket();
+	if (packetSize) {
+	  IPAddress remote = Udp.remoteIP();
+	  // read the packet into packetBufffer
+	  Udp.read(packetBuffer,UDP_TX_PACKET_MAX_SIZE);   
+	  // the data is now in "packetBuffer"
+	}
+	delay(10);
+  
+    // HOW TO SEND DATA
+    Udp.beginPacket(destinationIP, destinationPort);
+    Udp.write(ReplyBuffer);
+    Udp.endPacket();	
+	</loop>
+</default>
+
+</template>

@@ -1,0 +1,60 @@
+<template>
+
+<!-- this will always get included once per hub, for each instances of this tile --> 
+<unique> 
+	<imports>
+	#include &lt;OSC.h&gt;
+	</imports>
+	
+	<variables>
+	Osc oscUDP;
+	NetAddress destination;
+	</variables>
+	
+	<setup>
+	oscUDP.begin(UDP);
+	destination.set(destinationIP, destinationPort);
+	</setup>
+	
+	<loop></loop>
+	<functions>
+	void oscEvent(OscMessage &amp;msg) {
+		// route messages using the "plug" functionality
+		
+		// this example redirects messages called "/incoming" to myFunction (below) 
+		msg.plug("/incoming", myFunction);
+	}
+	
+	void myFunction(OscMessage &amp;msg) {
+	    // get the data out of the message 
+		int data = msg.getInt(0); 
+	}
+	</functions>	
+</unique>
+
+<!-- this will always get included in the template --> 
+<always>
+	<imports></imports>
+	<variables></variables>
+	<setup></setup>
+	<loop></loop>
+	<functions></functions>
+</always>
+
+<!-- this will get overwritten by subsequent tiles --> 
+<default>
+	<variables></variables>
+	<setup></setup>
+	<loop>
+	OscMessage msg("/outgoing"); // this could be any pattern
+	msg.add(0); // this could be any data
+	oscUDP.send(msg, destination); 
+	
+	// important! this is needed in order to receive messages  
+	oscUDP.listen(); 
+	</loop>
+	<functions>
+	</functions>
+</default>
+
+</template>
