@@ -3,10 +3,10 @@
 <!-- this will always get included once per hub, for each instances of this tile --> 
 <unique> 
 	<imports>
-	#include &lt;OSC.h&gt;
+	#include &lt;OscSerial.h&gt;
 	</imports>
 	<variables>
-	Osc oscSerial;
+	OscSerial oscSerial;
 	</variables>
 	<setup>
 	oscSerial.begin(Serial);

@@ -3,16 +3,16 @@
 <!-- this will always get included once per hub, for each instances of this tile --> 
 <unique> 
 	<imports>
-	#include &lt;OSC.h&gt;
+	#include &lt;OscUDP.h&gt;
 	</imports>
 	
 	<variables>
-	Osc oscUDP;
+	OscUDP oscUdp;
 	NetAddress destination;
 	</variables>
 	
 	<setup>
-	oscUDP.begin(UDP);
+	oscUdp.begin(UDP);
 	destination.set(destinationIP, destinationPort);
 	</setup>
 	
@@ -48,10 +48,10 @@
 	<loop>
 	OscMessage msg("/outgoing"); // this could be any pattern
 	msg.add(0); // this could be any data
-	oscUDP.send(msg, destination); 
+	oscUdp.send(msg, destination); 
 	
 	// important! this is needed in order to receive messages  
-	oscUDP.listen(); 
+	oscUdp.listen(); 
 	</loop>
 	<functions>
 	</functions>

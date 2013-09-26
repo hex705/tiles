@@ -20,13 +20,13 @@
 	</variables>
 	<setup>
 	serial$SERIAL_COUNT = new Serial(this, serialName$SERIAL_COUNT, baudRate);	
-	//Use this if your data is separated by new lines ('\n') 
-	//serial$SERIAL_COUNT.bufferUntil('\n'); 
 	</setup>
 </always>
 
 <default>
 	<setup>
+	//Use this if your data is separated by new lines ('\n') 
+	//serial$SERIAL_COUNT.bufferUntil('\n'); 
 	</setup>
 
 	<loop>

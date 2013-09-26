@@ -285,11 +285,11 @@ class Code:
 			# add this code to the right section 
 			if whichOne == 'unique' and node not in self.nodesAdded:
 				# only add unique content the first time around 
-				self.unique[key] += content
+				self.unique[key] += content + "\n"
 			if whichOne == 'always':
-				self.always[key] += content
+				self.always[key] += content + "\n"
 		 	if whichOne == 'default':
-				self.default[key] = content  
+				self.default[key] = content  + "\n"
 
 		
 #=========================================================================================
