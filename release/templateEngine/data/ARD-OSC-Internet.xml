@@ -3,6 +3,8 @@
 <!-- this will always get included once per hub, for each instances of this tile --> 
 <unique> 
 	<imports>
+	#include &lt;EthernetUdp.h&gt;
+    #include &lt;SPI.h&gt;
 	#include &lt;OscUDP.h&gt;
 	</imports>
 	

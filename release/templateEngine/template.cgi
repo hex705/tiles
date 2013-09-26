@@ -151,6 +151,14 @@ class Code:
 	
 		# format // prettify 
 		result = jsbeautifier.beautify(self.base)		
+		
+		# js beautifier inserts unwanted spaces around <, > and #. Not sure why but 
+		# here is a quick fix
+		result = result.replace("< ", "<")
+		result = result.replace(" >", ">")
+		result = result.replace("# ", "#")
+		
+		
 		return result
 	
 	#-------------------------------------------------------------------------------------
