@@ -58,7 +58,7 @@ void setup() {
   orientation(LANDSCAPE);
   cam = new KetaiCamera(this, (int)camW, (int)camH, 30);  
   freezeFrame = createImage((int)camW, (int)camH, RGB);
-
+  gBuffer = cam; // THIS NEEDS TO GO -- we should be able to use only cam
   message = "Tap to capture the current screen";
 
   //hideVirtualKeyboard();
