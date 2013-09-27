@@ -1,0 +1,19 @@
+// Password can be made up 
+// Run this from the /android folder 
+
+// First generate a KEY 
+keytool -genkey -v -keystore TangibleTiles-release-key.keystore -alias DAVID -keyalg RSA -keysize 2048 -validity 10000
+
+// Run the build
+ant release
+
+// Sign the package
+jarsigner -verbose -keystore TangibleTiles-release-key.keystore bin/TangibleTiles-release-unsigned.apk DAVID
+
+// Verify the package
+jarsigner -verify bin/TangibleTiles-release-unsigned.apk
+
+// Put it all together into a nice finished product
+// ZIP align is in my android/tools folder; which isn't on my PATH
+
+~/android/tools/zipalign -v 4 bin/TangibleTiles-release-unsigned.apk TangibleTiles.apk
