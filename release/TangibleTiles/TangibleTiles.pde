@@ -1,5 +1,5 @@
+import ketai.camera.*;
 import java.util.*;
-
 import java.io.*;
 import java.net.*;
 
@@ -7,27 +7,17 @@ import org.apache.http.HttpException;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 import org.jgrapht.traverse.DepthFirstIterator;
-import org.jgrapht.*;
-import org.jgrapht.generate.*;
-import org.jgrapht.graph.*;
-import org.jgrapht.traverse.*;
 
 import android.view.inputmethod.InputMethodManager;
 import android.content.Context;
 
-import android.content.Context;
-import android.hardware.Camera;
-import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.util.Log;
-
+// GUI 
 int MODE;
 int CAPTURING = 0;
 int SCREENSHOT = 1;
 boolean EMAILSCREEN = false;
 
-float acceptable_distance = 4;
+float acceptable_distance = 3;
 boolean debug_snapshot_done = false;
 PImage sample;
 
@@ -43,39 +33,58 @@ Tile[] present_tiles;
 //JGraphT stuff
 SimpleGraph<Tile, DefaultEdge> tileGraph;
 
-//misc.
+// Misc.
 int lastID;
 Timer emailTimer = new Timer();
 float scaleRatio;
+float scaleOffset;
 
 Scanner scanner; // top code scanner
-//List<TopCode> codes = new ArrayList<TopCode>();
 int[] pixels = null;
 
 // Set up camera globals:
-CameraSurfaceView gCamSurfView;
-// This is the physical image drawn on the screen representing the camera:
 PImage gBuffer;
+KetaiCamera cam;
 
+float camW = 640;
+float camH = 480;
+
+PImage freezeFrame;
+
+
+//----------------------------------------------------------------------------------------
 void setup() {
   size(displayWidth, displayHeight);
-  
-  
-  //frameRate(5);
+  orientation(LANDSCAPE);
+  cam = new KetaiCamera(this, (int)camW, (int)camH, 30);  
+  freezeFrame = createImage((int)camW, (int)camH, RGB);
+
   message = "Tap to capture the current screen";
 
-  hideVirtualKeyboard();
+  //hideVirtualKeyboard();
 
   imageMode(CENTER);
   stroke(255);
   textSize(24); // (3)
 
   scanner = new Scanner();
-
   lastID = 0;
-  scaleRatio = (float) (displayWidth/640.0); // amount to scale video so it occupies whole width of screen
-  Log.v("Msg", "displayWidth: " + displayWidth + " scaleRatio: " + scaleRatio);
-
+  
+  // Calculate aspect ratio and scaling since our camera operates at a different resolution
+  // from the screen
+  float camAspect = camW / camH;
+  float screenAspect = (float)displayWidth / displayHeight;
+  
+  if (screenAspect > camAspect) {
+    scaleRatio = (displayHeight/camH);
+    scaleOffset = (displayWidth - (camW*scaleRatio)) / 2;    
+  }
+  else {
+   scaleRatio = displayWidth / camW;
+  } 
+  
+  println("scaleRatio: " + scaleRatio + ", offset: " + scaleOffset);
+  
   // xml stuff
   xml = loadXML("tileset.xml");
   XML[] children = xml.getChildren("tile");
@@ -98,14 +107,15 @@ void setup() {
     connections[2] = children[i].getChild("connections").getInt("B");
     connections[3] = children[i].getChild("connections").getInt("L");
 
-    //println(id + " " + name + "  { L" + connections[3] + "; R"
-    //    + connections[1] + "; T" + connections[0] + "; B"
-    //    + connections[2] + " }");
+    println(id + " " + name + "  { L" + connections[3] + "; R"
+      + connections[1] + "; T" + connections[0] + "; B"
+      + connections[2] + " }");
     // pass all data to appropriate tile object
     tileset[i] = new Tile (id, name, type, connections[0], connections[1], connections[2], connections[3]);
   }
+
   for (int i = 0; i < tileset.length; i ++) {
-    Log.v ("Msg", tileset[i].topcodeID + " " + tileset[i].topcodeName + "  { L" + tileset[i].connections[3] + "; R"
+    println( tileset[i].topcodeID + " " + tileset[i].topcodeName + "  { L" + tileset[i].connections[3] + "; R"
       + tileset[i].connections[1] + "; T" + tileset[i].connections[0] + "; B"
       + tileset[i].connections[2] + " }"); //print every available tile that is defined in tileset.xml
   }
@@ -114,7 +124,28 @@ void setup() {
   tileGraph = new SimpleGraph<Tile, DefaultEdge>(DefaultEdge.class);
 }
 
+//----------------------------------------------------------------------------------------
 void draw() {
+  background(0);
+  image(cam, width/2, height/2, cam.width*scaleRatio, cam.height*scaleRatio);
+  if (cam.isStarted() == false) cam.start();
+
+  if (MODE == CAPTURING) {
+
+    List<TopCode> codes = getTopcodes(cam);
+    try {
+      makeGraph(codes, false);
+    } 
+    catch(NullPointerException e) {
+      println("error: " + e);
+    }
+  }
+  else if (MODE == SCREENSHOT) {
+    image(freezeFrame, width/2, height/2, cam.width*scaleRatio, cam.height*scaleRatio); 
+    List<TopCode> codes = getTopcodes(freezeFrame);
+    makeGraph(codes, true);  
+  }
+
   if (EMAILSCREEN == true) {
     // draw text box
     fill (255);
@@ -131,6 +162,7 @@ void draw() {
 
 String message;
 
+//----------------------------------------------------------------------------------------
 void drawMessage() {
   //drawing full-width black box for user instruction
   fill(0, 0, 0, 128);
@@ -141,6 +173,7 @@ void drawMessage() {
   text(message, 20, 27);
 }
 
+//----------------------------------------------------------------------------------------
 class Timer {
   int timeLeft;
   int startTime;
@@ -158,47 +191,23 @@ class Timer {
     }
   }
 }
+
+//----------------------------------------------------------------------------------------
 void timerEnd(Timer t) {
   if (emailTimer.active == false && MODE == CAPTURING) {
     message = "Tap to capture the current screen";
   }
 }
 
+//----------------------------------------------------------------------------------------
 List<TopCode> getTopcodes(PImage cam) {
-  // we need a copy of the pixels array
-  // because the scanner modifies the image it is given
-  /*if (pixels == null) pixels = new int[gBuffer.pixels.length];
-   System.arraycopy(gBuffer.pixels, 0, pixels, 0, gBuffer.pixels.length);
-   
-   codes = scanner.scan(pixels, gBuffer.width, gBuffer.height);*/
-
-  //image(cam, width / 2, height / 2, width, height);
-
-  // we need a copy of the pixels array
-  // because the scanner modifies the image it is given
   if (pixels == null) pixels = new int[cam.pixels.length];
   System.arraycopy(cam.pixels, 0, pixels, 0, cam.pixels.length);
-
   List<TopCode> codes = scanner.scan(pixels, cam.width, cam.height);
-
-  // draw the codes (if any)
-  /*
-    rectMode(CENTER);
-   stroke(0, 255, 0);
-   noFill();
-   for (TopCode code : codes) {
-   pushMatrix();
-   translate(code.getCenterX(), code.getCenterY());
-   text(code.getCode(), 0, 0);
-   rotate(code.getOrientation());
-   rect(0, 0, code.getDiameter(), code.getDiameter());
-   popMatrix();
-   println(code.getCode());
-   }*/
-
   return codes;
 }
 
+//----------------------------------------------------------------------------------------
 void snapShot(PImage img, List<TopCode> codes) {
   //normal behaviour: live video with topcodes being identified
   //image(cam, 0, 0);
@@ -206,24 +215,24 @@ void snapShot(PImage img, List<TopCode> codes) {
 
   //codes = getTopcodes(gBuffer);
 
-  pushMatrix();
-  scale(scaleRatio/1);
-  imageMode(CORNER);
-  image(gBuffer, 0, 0); // draw cam image
-  popMatrix();
+  //pushMatrix();
+  //scale(scaleRatio/1);
+  //imageMode(CORNER);
+  //image(gBuffer, 0, 0); // draw cam image
+  //popMatrix();
 
   //println("present tiles:");
   for (TopCode code : codes) {
     String tileName = "";
-
     int thisCode = code.getCode();
     for (int i = 0; i < tileset.length; i++) {
       if (thisCode == tileset[i].topcodeID) {
-        tileName = tileset[i].topcodeID + " " + tileset[i].topcodeName;
-        println("    " + tileName);
-
+        //tileName = tileset[i].topcodeID + " " + tileset[i].topcodeName;
+        tileName = tileset[i].topcodeName;
+        //println("    " + tileName);
         // drawing all the topcode boundaries and names
         pushMatrix();
+        translate(scaleOffset, 0);
         scale(scaleRatio/1);
         translate(code.getCenterX(), code.getCenterY());
         //rotate(code.getOrientation());
@@ -232,13 +241,18 @@ void snapShot(PImage img, List<TopCode> codes) {
         ellipse(0, 0, code.getDiameter(), code.getDiameter());
         stroke(255);
         fill(255);
-        scale(1/scaleRatio);
-        text(tileName, 0, 0);
+        //scale(scaleRatio);
+        textAlign(CENTER);
+        textSize(code.getDiameter()/2*0.8);
+        text(tileName, 0, -code.getDiameter());
+        textAlign(LEFT);
         popMatrix();
       }
     }
   }
 }
+
+//----------------------------------------------------------------------------------------
 void makeGraph(List<TopCode> codes, boolean graphFunctions) {
   snapShot(gBuffer, codes); 
   drawMessage();
@@ -324,7 +338,8 @@ void makeGraph(List<TopCode> codes, boolean graphFunctions) {
           //edge visualization
           pushStyle();
           pushMatrix();
-          scale(scaleRatio/1);
+          translate(scaleOffset, 0);
+          scale(scaleRatio/1);          
           stroke(0, 255, 0);
           strokeWeight(4);
           line(tile1.centerX, tile1.centerY, short_tile.centerX, short_tile.centerY);
@@ -336,7 +351,7 @@ void makeGraph(List<TopCode> codes, boolean graphFunctions) {
   }
 
   if (graphFunctions == true) {
-    emailScreen(); //get the user's email via a prompt
+    if (EMAILSCREEN == false) emailScreen(); //get the user's email via a prompt
   }
   /*
     try {
@@ -348,6 +363,7 @@ void makeGraph(List<TopCode> codes, boolean graphFunctions) {
    }*/
 }
 
+//----------------------------------------------------------------------------------------
 // for keyboard email entry
 String typing = "";
 String saved = "";
@@ -356,12 +372,13 @@ void emailScreen() {
   showVirtualKeyboard();
 }
 
+//----------------------------------------------------------------------------------------
 void keyPressed() {
   if (key == '\n') { // on enter, print full string to console. this is where
     saved = typing;
     typing = "";
     // call some output function
-    Log.v("Msg", "email: " + saved);
+    println("email: " + saved);
     emailTimer.start(5000);
     message = "check your email for code templates";
     hideVirtualKeyboard();
@@ -371,7 +388,7 @@ void keyPressed() {
 
     try {
       if (saved.equals("")) {
-        Log.v("Msg", "no email was given");
+        println("no email was given");
       } 
       else {
         sendToServer(getOutput(saved));
@@ -380,7 +397,7 @@ void keyPressed() {
     catch (Exception e) {
       //do nothing
       e.printStackTrace();
-      Log.e("Msg", "Error sending to server: " + e);
+      println("Error sending to server: " + e);
     }
   } // Don't know where these codes come from, or why they're not the same as in Processing desktop
   else if (key == 65535) {
@@ -395,20 +412,24 @@ void keyPressed() {
   }
 
 
-  //Log.v("Msg", "key: " + key);
-  //Log.v("Msg",  typing);
+  //println("key: " + key);
+  //println(" typing);
 }
 
+//----------------------------------------------------------------------------------------
 // keyboard functions from http://forum.processing.org/topic/show-hide-the-keyboard
 void showVirtualKeyboard() {
   InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
   imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 }
 
+//----------------------------------------------------------------------------------------
 void hideVirtualKeyboard() {
   InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
   imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 }
+
+//----------------------------------------------------------------------------------------
 void sendToServer(String message) throws Exception { // from http://docs.oracle.com/javase/tutorial/networking/urls/readingWriting.html
 
   String stringToSend = URLEncoder.encode(message, "UTF-8");
@@ -429,11 +450,12 @@ void sendToServer(String message) throws Exception { // from http://docs.oracle.
   String decodedString;
   while ( (decodedString = in.readLine ()) != null) {
     //System.out.println(decodedString);
-    Log.v("Xml", decodedString);
+    println(decodedString);
   }
   in.close();
 }
 
+//----------------------------------------------------------------------------------------
 String getOutput(String email) {
   println("output:");    
   // reload the output template every time    
@@ -504,6 +526,7 @@ String getOutput(String email) {
   return output;
 }
 
+//----------------------------------------------------------------------------------------
 void populateNode(Tile tiles, XML newNode) {
   //populating the node
   XML newID = newNode.addChild("id");
@@ -516,21 +539,16 @@ void populateNode(Tile tiles, XML newNode) {
   newType.setContent(tiles.type);
 }
 
-protected void onResume() {
-  super.onResume();
-  Log.v("Msg", "onResume()!");
-  orientation(LANDSCAPE);
-  gCamSurfView = new CameraSurfaceView(this.getApplicationContext());
-}
-
+//----------------------------------------------------------------------------------------
 void mousePressed() {
-  Log.v("Msg", "Touch");
+  println("Touch");
   if (EMAILSCREEN == false) {
     if (MODE == CAPTURING) {
       MODE = SCREENSHOT;
       message = "enter your email address, then press enter";
-      List<TopCode> codes = getTopcodes(gBuffer);
-      makeGraph(codes, true);
+      // make a copy of the frame
+      
+      freezeFrame.copy(cam, 0, 0, (int)camW, (int)camH, 0, 0, (int)camW, (int)camH); 
     } 
     else if (MODE == SCREENSHOT) {
       MODE = CAPTURING; //continuous video
@@ -543,130 +561,18 @@ void mousePressed() {
     }
   }
 }
+
+//----------------------------------------------------------------------------------------s
 void stop() {
   // Give the cam back to the phone:
-  gCamSurfView.cam.stopPreview();
-  gCamSurfView.cam.release();
-  gCamSurfView.cam = null;
-
-  hideVirtualKeyboard();
-
+  cam.stop();
   super.stop();
 }
 
-// camera stuff is from http://www.akeric.com/blog/?p=1342
-/**
- CameraPixelData
- Eric Pavey - 2010-11-15
- 
- Set Sketch Permissions : CAMERA
- Add to AndroidManifest.xml:
- uses-feature android:name="android.hardware.camera"
- uses-feature android:name="android.hardware.camera.autofocus"
- */
-class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Callback, Camera.PreviewCallback {
-  SurfaceHolder mHolder;
-  Camera cam = null;
-  Camera.Size prevSize;
 
-  // SurfaceView Constructor:  : ---------------------------------------------------
-  CameraSurfaceView(Context context) {
-    super(context);
-    // Processing PApplets come with their own SurfaceView object which can be accessed
-    // directly via its object name, 'surfaceView', or via the below function:
-    // mHolder = surfaceView.getHolder();
-    mHolder = getSurfaceHolder();
-    // Add this object as a callback:
-    mHolder.addCallback(this);
-  }
 
-  // SurfaceHolder.Callback stuff: ------------------------------------------------------
-  void surfaceCreated (SurfaceHolder holder) {
-    // When the SurfaceHolder is created, create our camera, and register our
-    // camera's preview callback, which will fire on each frame of preview:
-    cam = Camera.open();
-    cam.setPreviewCallback(this);
-
-    Camera.Parameters parameters = cam.getParameters();
-    parameters.setPreviewSize(640, 480);
-    scaleRatio = 1;
-    //scaleRatio = displayWidth/640; // amount to scale video so it occupies whole width of screen
-    cam.setParameters(parameters);
-    // Find our preview size, and init our global PImage:
-    prevSize = parameters.getPreviewSize();
-    gBuffer = createImage(prevSize.width, prevSize.height, RGB);
-  }  
-
-  void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-    // Start our camera previewing:
-    cam.startPreview();
-  }
-
-  void surfaceDestroyed (SurfaceHolder holder) {
-    // Give the cam back to the phone:
-    cam.stopPreview();
-    cam.release();
-    cam = null;
-    hideVirtualKeyboard();
-  }
-
-  //  Camera.PreviewCallback stuff: ------------------------------------------------------
-  void onPreviewFrame(byte[] data, Camera cam) {
-    if (MODE == CAPTURING) {
-      // This is called every frame of the preview.  Update our global PImage.
-      gBuffer.loadPixels();
-      // Decode our camera byte data into RGB data:
-      decodeYUV420SP(gBuffer.pixels, data, prevSize.width, prevSize.height);
-      gBuffer.updatePixels();
-      // Draw to screen:
-      //image(gBuffer, width/2,height/2); // draw cam image
-      List<TopCode> codes = getTopcodes(gBuffer);
-      try {
-        makeGraph(codes, false);
-      } 
-      catch(NullPointerException e) {
-        Log.e("Msg", "error: " + e);
-      }
-    }
-  }
-
-  //  Byte decoder : ---------------------------------------------------------------------
-  void decodeYUV420SP(int[] rgb, byte[] yuv420sp, int width, int height) {
-    // Pulled directly from:
-    // http://ketai.googlecode.com/svn/trunk/ketai/src/edu/uic/ketai/inputService/KetaiCamera.java
-    final int frameSize = width * height;
-
-    for (int j = 0, yp = 0; j < height; j++) {       
-      int uvp = frameSize + (j >> 1) * width, u = 0, v = 0;
-      for (int i = 0; i < width; i++, yp++) {
-        int y = (0xff & ((int) yuv420sp[yp])) - 16;
-        if (y < 0)
-          y = 0;
-        if ((i & 1) == 0) {
-          v = (0xff & yuv420sp[uvp++]) - 128;
-          u = (0xff & yuv420sp[uvp++]) - 128;
-        }
-
-        int y1192 = 1192 * y;
-        int r = (y1192 + 1634 * v);
-        int g = (y1192 - 833 * v - 400 * u);
-        int b = (y1192 + 2066 * u);
-
-        if (r < 0)
-          r = 0;
-        else if (r > 262143)
-          r = 262143;
-        if (g < 0)
-          g = 0;
-        else if (g > 262143)
-          g = 262143;
-        if (b < 0)
-          b = 0;
-        else if (b > 262143)
-          b = 262143;
-
-        rgb[yp] = 0xff000000 | ((r << 6) & 0xff0000) | ((g >> 2) & 0xff00) | ((b >> 10) & 0xff);
-      }
-    }
-  }
+void onCameraPreviewEvent()
+{
+  cam.read();
 }
+
