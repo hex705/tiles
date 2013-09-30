@@ -1,0 +1,27 @@
+To run the CGI cript locally / for testing, use:
+python template.cgi <SAMPLEFILE> 
+
+for example:
+python template.cgi sample/Processing-Serial-Arduino.xml
+
+See the samples folder for a few more sample graphs
+
+The script depends on JS-Beautify.
+
+It can be installed using PIP
+
+sudo pip install jsbeautify 
+
+or 
+run the installer from the jsbeautifier folder:
+
+cd jsbeautifier
+sudo python setup.py install 
+
+
+
+The data folder contains the XML code templates.
+
+The rsync script syncs the CGI script and the data to deadpixel.ca/tiles, but requires a 
+password. 
+
