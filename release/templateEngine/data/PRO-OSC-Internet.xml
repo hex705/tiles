@@ -9,12 +9,12 @@
 	
 	<variables>
 	OscP5 osc; 
-	int myPort = 12000;	
+	int listeningPort = 12000;	
 	
 	</variables>
 	
 	<setup>	
-	osc = new OscP5(this, myPort);	
+	osc = new OscP5(this, listeningPort);	
 	</setup>
 	
 	<functions>
@@ -35,8 +35,7 @@
 	</variables>
 	
 	<loop> 
-	send$OSC_COUNT();
-	
+	sendOsc$OSC_COUNT();	
 	</loop>
 	
 	<setup>
@@ -44,7 +43,7 @@
 	</setup>
 	
 	<functions>
-	function sendOsc$OSC_COUNT() {
+	void sendOsc$OSC_COUNT() {
 		OscMessage msg = new OscMessage("/outgoing$OSC_COUNT");
 		msg.add(mouseX); // this could be any data 
 		osc.send(msg, destination$OSC_COUNT);
