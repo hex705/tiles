@@ -29,8 +29,8 @@
 	<variables>	
 	// Someone to talk to
 	NetAddress  destination$OSC_COUNT;  
-	String      destinationIP$OSC_COUNT = "192.168.0.180";
-	int         destinationPort$OSC_COUNT = 12001;   	
+	String      destinationIP$OSC_COUNT = "127.0.0.1";
+	int         destinationPort$OSC_COUNT = 1200$OSC_COUNT;   	
 	
 	</variables>
 	

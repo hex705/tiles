@@ -37,7 +37,7 @@
 	UdpClient destination$UDP_COUNT;
 	// this is the IP address of a device you are trying to reach; you will need
 	// to set this 
-	String destinationIP$UDP_COUNT = "192.168.100.$UDP_COUNT"; 
+	String destinationIP$UDP_COUNT = "127.0.0.1"; 
 	// this is the port the other device is listening on; you will need to set this as well
 	int destinationPort$UDP_COUNT = 1200$UDP_COUNT; 
     </variables>
