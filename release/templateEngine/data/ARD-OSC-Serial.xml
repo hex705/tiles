@@ -5,6 +5,10 @@
 <unique> 
 	<imports>
 	#include &lt;OscSerial.h&gt;
+	
+	#include &lt;EthernetUdp.h&gt;
+	#include &lt;SPI.h&gt;
+	
 	</imports>
 	<variables>
 	OscSerial oscSerial;

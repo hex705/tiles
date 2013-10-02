@@ -14,19 +14,19 @@
 
 <always>
 	<variables>
-	Serial serial$SERIAL_COUNT;
+	Serial proSerial$SERIAL_COUNT;
 	String serialName$SERIAL_COUNT = "/dev/tty.usbxxxxxx"; // put the name of your serial port
 	int    baudRate = 9600; // set your baud rate	
 	</variables>
 	<setup>
-	serial$SERIAL_COUNT = new Serial(this, serialName$SERIAL_COUNT, baudRate);	
+	proSerial$SERIAL_COUNT = new Serial(this, serialName$SERIAL_COUNT, baudRate);	
 	</setup>
 </always>
 
 <default>
 	<setup>
 	//Use this if your data is separated by new lines ('\n') 
-	//serial$SERIAL_COUNT.bufferUntil('\n'); 
+	//proSerial$SERIAL_COUNT.bufferUntil('\n'); 
 	</setup>
 
 	<loop>
