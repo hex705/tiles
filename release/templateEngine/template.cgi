@@ -12,6 +12,7 @@ import sys
 import uuid
 import shutil
 from time import gmtime, strftime
+from operator import attrgetter
 
 import emailer
 
@@ -175,10 +176,11 @@ class Code:
 		self.everything = dict(zip(sections, [""]*len(sections)))
 		
 		self.counters = {}
-		self.nodesAdded = []
-		
-		self.prevNode = None
+		self.nodesAdded = []		
+		self.prevNode = None		
 
+		self.num = 0
+		self.nodeCount = 0;
 	#-------------------------------------------------------------------------------------
 	def processPath(self, nodes):
 		
@@ -220,6 +222,7 @@ class Code:
 	#-------------------------------------------------------------------------------------	
 	def processNode(self, node):
 		debug("Adding node %s" % node)
+		self.nodeCount +=1 # keep track of how many nodes we've seen
 		
 		# get the XML document associated with this node
 		xml = self.getXML(node.name)
@@ -340,27 +343,38 @@ if __name__ == "__main__":
 	debug("HERE COMES THE CODE")
 	debug("*"*80)
 
+	# assign a number each code template ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	
+	# 1. build a list of each hub type 
+	hubs = {} 
+	for code in codes.itervalues():
+		if code.hub in hubs:
+			hubs[code.hub].append(code)
+		else:
+			hubs[code.hub] = [code]
+
+	# 2. sort them by their nodeCount and assign them a number based on that order
+	for hubList in hubs.itervalues():
+		#debug(hubList)
+		sortedList = sorted(hubList, key=attrgetter("nodeCount"), reverse=True)
+		num = 1
+		for h in sortedList: 
+			h.num = num
+			num += 1
+			
+	
+	# generate code & files ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	counts = {}
 	for code in codes.itervalues():
-	
-		# this will keep track of similar tiles (eg: 2x Processing) and count them 
-		# to create different folders
-		num = 1
-		if code.hub in counts:
-			counts[code.hub] += 1
-			num = counts[code.hub]
-		else:
-			counts[code.hub] = 1
+		debug("Generating code for %s %s" % (code.hub, code.num))
 		
-		debug("Generating code for %s %s" % (code.hub, num))
-		
-		templateDir = os.path.join(projectDir, "%s%s" % (code.hub, num))
+		templateDir = os.path.join(projectDir, "%s%s" % (code.hub, code.num))
 		os.makedirs(templateDir)
 		
 		# Create the source file
-		if code.hub == "Processing": sourceFile = "%s%s.pde" % (code.hub, num)
-		if code.hub == "Arduino": sourceFile = "%s%s.ino" % (code.hub, num)
-		if code.hub == "Android": sourceFile = "%s%s.pde" % (code.hub, num)
+		if code.hub == "Processing": sourceFile = "%s%s.pde" % (code.hub, code.num)
+		if code.hub == "Arduino": sourceFile = "%s%s.ino" % (code.hub, code.num)
+		if code.hub == "Android": sourceFile = "%s%s.pde" % (code.hub, code.num)
 
 		sourcePath = os.path.join(templateDir, sourceFile) 		
 		
@@ -372,7 +386,7 @@ if __name__ == "__main__":
 		debug(source)
 		debug("="*80)
 	
-	# zip it all
+	# zip it all ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	zipFileName = '%s.zip' % baseDir
 	zip = zipfile.ZipFile(zipFileName, 'w')
 	zipdir(baseDir, zip) 
