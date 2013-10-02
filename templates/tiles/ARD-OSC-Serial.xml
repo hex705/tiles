@@ -1,12 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <template>
 
 <!-- this will always get included once per hub, for each instances of this tile --> 
 <unique> 
 	<imports>
-	#include &lt;OSC.h&gt;
+	#include &lt;OscSerial.h&gt;
+	
+	#include &lt;EthernetUdp.h&gt;
+	#include &lt;SPI.h&gt;
+	
 	</imports>
 	<variables>
-	Osc oscSerial;
+	OscSerial oscSerial;
 	</variables>
 	<setup>
 	oscSerial.begin(Serial);
@@ -47,7 +52,7 @@
 	oscSerial.send(msg); 
 	
 	// important! this is needed in order to receive messages  
-	oscUDP.listen();
+	oscSerial.listen();
 	</loop>
 	<functions></functions>
 </default>

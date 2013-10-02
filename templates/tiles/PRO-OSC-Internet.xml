@@ -9,11 +9,12 @@
 	
 	<variables>
 	OscP5 osc; 
-	int myPort = 12000;	
+	int listeningPort = 12000;	
+	
 	</variables>
 	
 	<setup>	
-	osc = new OscP5(this, myPort);	
+	osc = new OscP5(this, listeningPort);	
 	</setup>
 	
 	<functions>
@@ -21,27 +22,33 @@
 		// all the received messages come here
 		println(incoming);
 	}
-	</functions>
-	
+	</functions>	
 </unique>
 
 <always>
 	<variables>	
 	// Someone to talk to
 	NetAddress  destination$OSC_COUNT;  
-	String      destinationIP$OSC_COUNT = "192.168.0.180";
-	int         destinationPort$OSC_COUNT = 12001;   	
+	String      destinationIP$OSC_COUNT = "127.0.0.1";
+	int         destinationPort$OSC_COUNT = 1200$OSC_COUNT;   	
+	
 	</variables>
 	
 	<loop> 
-	OscMessage msg = new OscMessage("/outgoing");
-	msg.add(mouseX); // this could be any data 
-	osc.send(msg, destination$OSC_COUNT);
+	sendOsc$OSC_COUNT();	
 	</loop>
 	
 	<setup>
-	destination$OSC_COUNT = new NetAddress(destinationIP, destinationPort);
+	destination$OSC_COUNT = new NetAddress(destinationIP$OSC_COUNT, destinationPort$OSC_COUNT);
 	</setup>
+	
+	<functions>
+	void sendOsc$OSC_COUNT() {
+		OscMessage msg = new OscMessage("/outgoing$OSC_COUNT");
+		msg.add(mouseX); // this could be any data 
+		osc.send(msg, destination$OSC_COUNT);
+	}	
+	</functions>
 </always>
 
 <default>

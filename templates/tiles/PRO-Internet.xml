@@ -32,19 +32,19 @@
 <default>
 	<variables>
 	UdpServer me;
-	int myPort = 12000; 
+	int listeningPort = 12000;  
 	
 	UdpClient destination$UDP_COUNT;
 	// this is the IP address of a device you are trying to reach; you will need
 	// to set this 
-	String destIP$UDP_COUNT = "192.168.100.$UDP_COUNT"; 
+	String destinationIP$UDP_COUNT = "127.0.0.1"; 
 	// this is the port the other device is listening on; you will need to set this as well
-	int destPort$UDP_COUNT = 1200$UDP_COUNT; 
+	int destinationPort$UDP_COUNT = 1200$UDP_COUNT; 
     </variables>
 	
 	<setup>
-	me = new UdpServer(this, myPort);  
-	destination$UDP_COUNT = new UdpClient(destIP$UDP_COUNT, destPort$UDP_COUNT);	   
+	me = new UdpServer(this, listeningPort);  
+	destination$UDP_COUNT = new UdpClient(destinationIP$UDP_COUNT, destinationPort$UDP_COUNT);	   
 	</setup>
 	
 	<loop>

@@ -3,9 +3,11 @@
 <!-- this will always get included once per hub, for each instances of this tile --> 
 <unique> 
 	<imports></imports>
-	<variables></variables>
+	<variables>
+	int baudRate = 9600;
+	</variables>
 	<setup>
-	Serial.begin(9600);
+	Serial.begin(baudRate);
 	</setup>
 	<loop></loop>
 	<functions></functions>	

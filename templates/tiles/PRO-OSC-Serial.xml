@@ -23,7 +23,7 @@
 	OscSerial osc$OSC_COUNT;
 	</variables>
 	<setup>	
-	osc$OSC_COUNT.begin(serial$SERIAL_COUNT); 
+	osc$OSC_COUNT = new OscSerial(this, proSerial$SERIAL_COUNT);
 	</setup>
 	<loop>
 	OscMessage msg = new OscMessage("/outgoing");
