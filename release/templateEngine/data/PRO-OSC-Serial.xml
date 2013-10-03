@@ -20,15 +20,15 @@
 <!-- overwritting the default --> 
 <default>
 	<variables>
-	OscSerial osc$OSC_COUNT;
+	OscSerial oscSerial$OSC_COUNT;
 	</variables>
 	<setup>	
-	osc$OSC_COUNT = new OscSerial(this, proSerial$SERIAL_COUNT);
+	oscSerial$OSC_COUNT = new OscSerial(this, proSerial$SERIAL_COUNT);
 	</setup>
 	<loop>
 	OscMessage msg = new OscMessage("/outgoing");
 	msg.add(mouseX);
-	osc$OSC_COUNT.send(msg);
+	oscSerial$OSC_COUNT.send(msg);
 	</loop>	 
 </default>
 
