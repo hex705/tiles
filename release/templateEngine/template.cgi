@@ -393,6 +393,8 @@ if __name__ == "__main__":
 	zip.close()
 	
 	if debugMode: 	
+		#uncomment this line to test sending emails 
+		#emailer.send_mail("david.bouchard@ryerson.ca", "Your code templates", "", zipFileName, "template.zip")		
 		os.remove(zipFileName)
 	else: 
 		# cleanup and send the template file via email 

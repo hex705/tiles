@@ -19,14 +19,14 @@ import sys
 # for a confirmation before sending each email 
  
 server = "smtp.gmail.com"
-login  = "david.bouchard@ryerson.ca"
+login  = "tangibletiles@gmail.com"
 
-pw     = "kfkyojxvsagezuns"  # <--- use your Google Token here 
+pw     = "tilestangible"  # <--- use a Google Token here 
 # http://www.ryerson.ca/google/usingapps/googletoken.html
  
 
 #==============================================================================
-def send_mail(to, subject, text, zipfile):
+def send_mail(to, subject, text, zipfile, zipname="testing.zip"):
 
   message = MIMEMultipart()
  
@@ -39,7 +39,7 @@ def send_mail(to, subject, text, zipfile):
   encoders.encode_base64(attachment)
   fp.close()
   
-  attachment.add_header('Content-Disposition', 'attachment', filename="testing.zip")
+  attachment.add_header('Content-Disposition', 'attachment', filename=zipname)
   message.attach(attachment)
   
   
