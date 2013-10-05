@@ -1,14 +1,13 @@
 <template>
 
-<counter>$OSC_COUNT</counter>
+<counter>$OSC_SERIAL_COUNT</counter>
 
 <unique>
 	<imports>
 	import oscP5.*;
 	</imports>
 	
-	<functions>
-		
+	<functions>		
     // listen for ALL incoming OSC messages
 	void oscEvent(OscMessage incoming) {
 		print(incoming);
@@ -22,17 +21,16 @@
 <!-- overwritting the default --> 
 <default>
 	<variables>
-	OscSerial oscSerial$OSC_COUNT;
+	OscSerial oscSerial$OSC_SERIAL_COUNT;
 	</variables>
 	<setup>	
-	oscSerial$OSC_COUNT = new OscSerial(this, proSerial$SERIAL_COUNT);
+	oscSerial$OSC_SERIAL_COUNT = new OscSerial(this, proSerial$SERIAL_COUNT);
 	</setup>
-	<loop>
-		
+	<loop>		
     // send serial messages
 	OscMessage msg = new OscMessage("/outgoingSerial");
 	msg.add(mouseX);
-	oscSerial$OSC_COUNT.send(msg);
+	oscSerial$OSC_SERIAL_COUNT.send(msg);
 	</loop>	 
 </default>
 
