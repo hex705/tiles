@@ -24,16 +24,26 @@
 	<variables>
 	OscSerial oscSerial$OSC_COUNT;
 	</variables>
+
 	<setup>	
 	oscSerial$OSC_COUNT = new OscSerial(this, proSerial$SERIAL_COUNT);
 	</setup>
+
 	<loop>
-		
-    // send serial messages
-	OscMessage msg = new OscMessage("/outgoingSerial");
-	msg.add(mouseX);
-	oscSerial$OSC_COUNT.send(msg);
+	sendOscSerial$OSC_COUNT();
 	</loop>	 
+	
+	<functions>
+	// send OSC serial messages 
+	void sendOscSerial$OSC_COUNT(){
+		OscMessage msg = new OscMessage("/outgoingSerial");
+		msg.add(mouseX);
+		oscSerial$OSC_COUNT.send(msg);	
+	}
+   
+	</functions>
+	
+	
 </default>
 
 </template>

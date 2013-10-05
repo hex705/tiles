@@ -18,6 +18,7 @@
 	</setup>
 	
 	<functions>
+	// Listen for ALL OSC messages
 	void oscEvent(OscMessage incoming) {
 		// all the received messages come here
 		println(incoming);
@@ -35,7 +36,7 @@
 	</variables>
 	
 	<loop> 
-	sendOscNet$OSC_COUNT();	
+	sendOscNet$OSC_COUNT();	// send to network destination $OSC_COUNT
 	</loop>
 	
 	<setup>
