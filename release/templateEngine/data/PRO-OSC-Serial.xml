@@ -8,6 +8,8 @@
 	</imports>
 	
 	<functions>
+		
+    // listen for ALL incoming OSC messages
 	void oscEvent(OscMessage incoming) {
 		print(incoming);
 	}
@@ -26,7 +28,9 @@
 	oscSerial$OSC_COUNT = new OscSerial(this, proSerial$SERIAL_COUNT);
 	</setup>
 	<loop>
-	OscMessage msg = new OscMessage("/outgoing");
+		
+    // send serial messages
+	OscMessage msg = new OscMessage("/outgoingSerial");
 	msg.add(mouseX);
 	oscSerial$OSC_COUNT.send(msg);
 	</loop>	 

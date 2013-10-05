@@ -20,6 +20,7 @@
 	
 	<loop></loop>
 	<functions>
+	// listen for All OSC messages here
 	void oscEvent(OscMessage &amp;msg) {
 		// route messages using the "plug" functionality
 		
@@ -48,12 +49,15 @@
 	<variables></variables>
 	<setup></setup>
 	<loop>
-	OscMessage msg("/outgoing"); // this could be any pattern
-	msg.add(0); // this could be any data
+	// send Internet messages
+	OscMessage msg("/outgoingInternet"); // this could be any pattern
+	msg.add(0);                          // this could be any data
 	oscUdp.send(msg, destination); 
 	
 	// important! this is needed in order to receive messages  
 	oscUdp.listen(); 
+	
+	delay(100);
 	</loop>
 	<functions>
 	</functions>

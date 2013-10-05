@@ -8,13 +8,13 @@
 	</imports>
 	
 	<variables>
-	OscP5 osc; 
+	OscP5 oscNet; 
 	int listeningPort = 12000;	
 	
 	</variables>
 	
 	<setup>	
-	osc = new OscP5(this, listeningPort);	
+	oscNet = new OscP5(this, listeningPort);	
 	</setup>
 	
 	<functions>
@@ -35,7 +35,7 @@
 	</variables>
 	
 	<loop> 
-	sendOsc$OSC_COUNT();	
+	sendOscNet$OSC_COUNT();	
 	</loop>
 	
 	<setup>
@@ -43,10 +43,11 @@
 	</setup>
 	
 	<functions>
-	void sendOsc$OSC_COUNT() {
-		OscMessage msg = new OscMessage("/outgoing$OSC_COUNT");
-		msg.add(mouseX); // this could be any data 
-		osc.send(msg, destination$OSC_COUNT);
+    // send network messages to destination $OSC_COUNT
+	void sendOscNet$OSC_COUNT() {
+		OscMessage msg = new OscMessage("/outgoingInternet$OSC_COUNT");
+		msg.add(mouseX);   // this could be any data 
+		oscNet.send(msg, destination$OSC_COUNT);
 	}	
 	</functions>
 </always>

@@ -6,6 +6,7 @@
 	<imports>
 	#include &lt;OscSerial.h&gt;
 	
+	// tile support
 	#include &lt;EthernetUdp.h&gt;
 	#include &lt;SPI.h&gt;
 	
@@ -19,6 +20,7 @@
 	<loop>	
 	</loop>
 	<functions>
+    // incoming messages will arrive here
 	void oscEvent(OscMessage &amp;msg) {
 		// route messages using the "plug" functionality
 		
@@ -26,6 +28,7 @@
 		msg.plug("/incoming", myFunction);
 	}
 	
+	// plugged function
 	void myFunction(OscMessage &amp;msg) {
 	    // get the data out of the message 
 		int data = msg.getInt(0); 
@@ -47,13 +50,17 @@
 	<variables></variables>
 	<setup></setup>
 	<loop>
-	OscMessage msg("/outgoing"); // this could be any pattern
-	msg.add(0); // this could be any data
-	oscSerial.send(msg); 
+    // send serial messages
+	OscMessage msg("/outgoingSerial"); // this could be any pattern
+	msg.add(0);                        // this could be any data
+	oscSerial.send(msg);               
 	
 	// important! this is needed in order to receive messages  
 	oscSerial.listen();
+	
+	delay(100);
 	</loop>
+	
 	<functions></functions>
 </default>
 
