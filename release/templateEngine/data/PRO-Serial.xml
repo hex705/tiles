@@ -6,19 +6,22 @@
 	<imports>
 	import processing.serial.*;
 	</imports>
+	
 	<setup>
 	// You'll find your serial device in this list 
 	println(Serial.list());	
 	</setup>
+	
 </unique>
 
 <always>
 	<variables>
 	Serial proSerial$SERIAL_COUNT;
-	String serialName$SERIAL_COUNT = "/dev/tty.usbxxxxxx"; // put the name of your serial port
+	String serialName$SERIAL_COUNT = "/dev/tty.usbXXXXXXX"; // put the name of your serial port
 	int    baudRate = 9600; // set your baud rate	
 	</variables>
 	<setup>
+	//start serial 
 	proSerial$SERIAL_COUNT = new Serial(this, serialName$SERIAL_COUNT, baudRate);	
 	</setup>
 </always>
