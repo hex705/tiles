@@ -1,6 +1,6 @@
 <template>
 
-<counter>$OSC_COUNT</counter>
+<counter>$OSC_NET_COUNT</counter>
 
 <unique>
 	<imports>
@@ -9,8 +9,7 @@
 	
 	<variables>
 	OscP5 oscNet; 
-	int listeningPort = 12000;	
-	
+	int listeningPort = 12000;		
 	</variables>
 	
 	<setup>	
@@ -29,26 +28,25 @@
 <always>
 	<variables>	
 	// Someone to talk to
-	NetAddress  destination$OSC_COUNT;  
-	String      destinationIP$OSC_COUNT = "127.0.0.1";
-	int         destinationPort$OSC_COUNT = 1200$OSC_COUNT;   	
-	
+	NetAddress  destination$OSC_NET_COUNT;  
+	String      destinationIP$OSC_NET_COUNT = "127.0.0.1";
+	int         destinationPort$OSC_NET_COUNT = 1200$OSC_NET_COUNT;   		
 	</variables>
 	
 	<loop> 
-	sendOscNet$OSC_COUNT();	// send to network destination $OSC_COUNT
+	sendOscNet$OSC_NET_COUNT();	// send to network destination$OSC_NET_COUNT
 	</loop>
 	
 	<setup>
-	destination$OSC_COUNT = new NetAddress(destinationIP$OSC_COUNT, destinationPort$OSC_COUNT);
+	destination$OSC_NET_COUNT = new NetAddress(destinationIP$OSC_NET_COUNT, destinationPort$OSC_NET_COUNT);
 	</setup>
 	
 	<functions>
-    // send network messages to destination $OSC_COUNT
-	void sendOscNet$OSC_COUNT() {
-		OscMessage msg = new OscMessage("/outgoingInternet$OSC_COUNT");
+    // send network messages to destination $OSC_NET_COUNT
+	void sendOscNet$OSC_NET_COUNT() {
+		OscMessage msg = new OscMessage("/outgoingInternet$OSC_NET_COUNT");
 		msg.add(mouseX);   // this could be any data 
-		oscNet.send(msg, destination$OSC_COUNT);
+		oscNet.send(msg, destination$OSC_NET_COUNT);
 	}	
 	</functions>
 </always>

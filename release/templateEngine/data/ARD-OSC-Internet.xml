@@ -57,7 +57,7 @@
 	// important! this is needed in order to receive messages  
 	oscUdp.listen(); 
 	
-	delay(100);
+	delay(50);
 	</loop>
 	<functions>
 	</functions>
