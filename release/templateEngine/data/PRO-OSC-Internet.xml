@@ -42,7 +42,7 @@
 	</setup>
 	
 	<functions>
-    // send network messages to destination $OSC_NET_COUNT
+    // send network messages to destination$OSC_NET_COUNT
 	void sendOscNet$OSC_NET_COUNT() {
 		OscMessage msg = new OscMessage("/outgoingInternet$OSC_NET_COUNT");
 		msg.add(mouseX);   // this could be any data 
