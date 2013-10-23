@@ -1,5 +1,18 @@
 #!/usr/bin/python
 
+# This script runs on the web server and receives XML graph files via POST. The files is 
+# parsed and turned into code modules, based on the templates found in the data/ folder. 
+
+# The resulting templates are created as a files in a temporary folder, ZIPed and emailed
+# back to the user.  
+
+# To run the script in debug mode from the command line, use one of the sample XMl graphs
+# in the sample/ folder:
+# python template.cgi sample/<samplename.xml> 
+
+# The input XML graph is also included in the ZIP in a hidden folder called ".debug" 
+
+
 import xml.etree.ElementTree as ET
 import re
 import os.path
@@ -14,14 +27,16 @@ import shutil
 from time import gmtime, strftime
 from operator import attrgetter
 
+# this is our module 
 import emailer
 
 # external dependency
-# pip install jsbeautifier 
+# pip install jsbeautifier or sudo python setup.py install from the js-beautifier folder
 import jsbeautifier
 
+# this will be set to True when using command line options 
+# otherwise False when used as a CGI script 
 debugMode = False
-
 
 #=========================================================================================
 def zipdir(path, zip):
@@ -32,7 +47,9 @@ def zipdir(path, zip):
 			zip.write(fileToZip, fileName)
 
 #=========================================================================================
-hubs = {} # contains tile names --> string templates
+# Data structures 
+
+hubs = {} # contains tile names --> hub templates mappings
 templates = {} # contains tile names --> xml templates
 codes = {} # contains tile id --> code templates 
 
@@ -47,6 +64,10 @@ def debug(str):
 #=========================================================================================
 def error(msg):
 	if debugMode: print "ERROR:", msg
+
+#=========================================================================================
+def warning(msg):
+	if debugMode: print "WARNING:", msg
 
 #=========================================================================================
 def tileName(filename):
@@ -85,8 +106,8 @@ def parsePath(xml):
 	
 	# Rule 2: the last node should be a hub also
 	if nodes[-1].type != 'hub':
-		error("Last node is not a Hub")
-		return
+		warning("Last node is not a Hub")
+		#return
 
 	# Create a new code template if we don't have this tile already
 	if hub.id not in codes:
@@ -306,6 +327,7 @@ class Code:
 #=========================================================================================
 if __name__ == "__main__":
 	
+	# Command line options  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if len(sys.argv) >= 2:
 		testFile = sys.argv[1]
 		xml = ET.parse(testFile)	
@@ -323,12 +345,13 @@ if __name__ == "__main__":
 			print "usage: python template.cgi <xml file>"
 			sys.exit()		
 	
+	# Loads the data available in the data/ folder 
 	loadTemplates()
+	
+	# This is where the fun happens. 
 	parseGraph(xml)	
-	
-	# TODO: generate source files and folders 
-	# from this 
-	
+	 
+	# Generate a random directory where we will be putting the files
 	baseDir = str(uuid.uuid4())
 	debug("-"*80)
 	debug("Creating temporary folder: %s" % baseDir)
@@ -344,6 +367,9 @@ if __name__ == "__main__":
 	debug("*"*80)
 
 	# assign a number each code template ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	
+	# This bit below numbers each folder (eg: Processing-1, Processing-2) if there 
+	# are multiple hubs present 
 	
 	# 1. build a list of each hub type 
 	hubs = {} 
@@ -361,7 +387,6 @@ if __name__ == "__main__":
 		for h in sortedList: 
 			h.num = num
 			num += 1
-			
 	
 	# generate code & files ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	counts = {}
@@ -386,20 +411,40 @@ if __name__ == "__main__":
 		debug(source)
 		debug("="*80)
 	
-	# zip it all ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	# Write the XML to a file graph to a file and include it with the package in a hidden 
+	# folder 
+	 
+	xmlDir = os.path.join(projectDir, ".debug")
+	os.makedirs(xmlDir)
+	xmlOutPath = os.path.join(xmlDir, "graph.xml")
+	
+	try:	
+		xml.write(xmlOutPath) 
+	except Exception as e:
+		# this is fucked up. 
+		# xml.write doesn't exist when running Python as CGI on Dreamhost.. 
+		# this is alternate way to save it
+		xmlF = open(xmlOutPath, 'w')
+		xmlF.write( ET.tostring(xml) )
+		xmlF.close()
+	
+	
+	# zip it all ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	zipFileName = '%s.zip' % baseDir
 	zip = zipfile.ZipFile(zipFileName, 'w')
 	zipdir(baseDir, zip) 
 	zip.close()
 	
+	# final touches, depending on mode ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if debugMode: 	
 		#uncomment this line to test sending emails 
-		#emailer.send_mail("david.bouchard@ryerson.ca", "Your code templates", "", zipFileName, "template.zip")		
-		os.remove(zipFileName)
+		#emailer.send_mail("dbouchard@gmail.com", "Your code templates", "", zipFileName, "template.zip")		
+		os.remove(zipFileName)		
+		#shutil.rmtree(baseDir)		
 	else: 
 		# cleanup and send the template file via email 
 		shutil.rmtree(baseDir)
 		emailAddr = xml.find('email').text
-		emailer.send_mail(emailAddr, "Your code template", "Testing", zipFileName, "template.zip")		
+		emailer.send_mail(emailAddr, "Your code templates", "", zipFileName, "template.zip")		
 		os.remove(zipFileName)
 	
