@@ -50,18 +50,27 @@
 	<variables></variables>
 	<setup></setup>
 	<loop>
-    // send serial messages
-	OscMessage msg("/outgoingSerial"); // this could be any pattern
-	msg.add(0);                        // this could be any data
-	oscSerial.send(msg);               
-	
+
+	sendOscSerial();
+
 	// important! this is needed in order to receive messages  
 	oscSerial.listen();
 	
 	delay(100);
 	</loop>
 	
-	<functions></functions>
+	<functions>
+	
+	// send OSC Serial messages
+	void sendOscSerial() {
+		OscMessage msg("/outgoingSerial"); // this could be any pattern
+		msg.add(0);                        // this could be any data
+		oscSerial.send(msg);               
+	}
+	
+	
+	
+	</functions>
 </default>
 
 </template>
