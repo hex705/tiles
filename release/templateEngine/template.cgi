@@ -409,10 +409,20 @@ if __name__ == "__main__":
 	
 	# Write the XML to a file graph to a file and include it with the package in a hidden 
 	# folder 
+	 
 	xmlDir = os.path.join(projectDir, ".debug")
 	os.makedirs(xmlDir)
 	xmlOutPath = os.path.join(xmlDir, "graph.xml")
-	xml.write(xmlOutPath) 
+	
+	try:	
+		xml.write(xmlOutPath) 
+	except Exception as e:
+		# this is fucked up. 
+		# xml.write doesn't exist when running Python as CGI on Dreamhost.. 
+		# this is alternate way to save it
+		xmlF = open(xmlOutPath, 'w')
+		xmlF.write( ET.tostring(xml) )
+		xmlF.close()
 	
 	
 	# zip it all ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -421,16 +431,15 @@ if __name__ == "__main__":
 	zipdir(baseDir, zip) 
 	zip.close()
 	
-	
 	# final touches, depending on mode ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if debugMode: 	
 		#uncomment this line to test sending emails 
-		#emailer.send_mail("david.bouchard@ryerson.ca", "Your code templates", "", zipFileName, "template.zip")		
+		emailer.send_mail("dbouchard@gmail.com", "Your code templates", "", zipFileName, "template.zip")		
 		os.remove(zipFileName)
 	else: 
 		# cleanup and send the template file via email 
 		shutil.rmtree(baseDir)
 		emailAddr = xml.find('email').text
-		emailer.send_mail(emailAddr, "Your code template", "See attached for your template.", zipFileName, "template.zip")		
+		emailer.send_mail(emailAddr, "Your code templates", "", zipFileName, "template.zip")		
 		os.remove(zipFileName)
 	
