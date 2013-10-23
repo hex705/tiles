@@ -66,6 +66,10 @@ def error(msg):
 	if debugMode: print "ERROR:", msg
 
 #=========================================================================================
+def warning(msg):
+	if debugMode: print "WARNING:", msg
+
+#=========================================================================================
 def tileName(filename):
 	base = os.path.basename(filename)
 	return os.path.splitext(base)[0]
@@ -102,8 +106,8 @@ def parsePath(xml):
 	
 	# Rule 2: the last node should be a hub also
 	if nodes[-1].type != 'hub':
-		error("Last node is not a Hub")
-		return
+		warning("Last node is not a Hub")
+		#return
 
 	# Create a new code template if we don't have this tile already
 	if hub.id not in codes:
@@ -434,8 +438,9 @@ if __name__ == "__main__":
 	# final touches, depending on mode ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if debugMode: 	
 		#uncomment this line to test sending emails 
-		emailer.send_mail("dbouchard@gmail.com", "Your code templates", "", zipFileName, "template.zip")		
-		os.remove(zipFileName)
+		#emailer.send_mail("dbouchard@gmail.com", "Your code templates", "", zipFileName, "template.zip")		
+		os.remove(zipFileName)		
+		#shutil.rmtree(baseDir)		
 	else: 
 		# cleanup and send the template file via email 
 		shutil.rmtree(baseDir)
