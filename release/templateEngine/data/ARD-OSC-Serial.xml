@@ -13,6 +13,9 @@
 	</imports>
 	<variables>
 	OscSerial oscSerial;
+	
+    long timer;
+
 	</variables>
 	<setup>
 	oscSerial.begin(Serial);
@@ -50,26 +53,23 @@
 	<variables></variables>
 	<setup></setup>
 	<loop>
-
-	sendOscSerial();
-
+	//  limits sends to every 100 mS
+	if ( millis() - timer > 100){
+		sendOscSerial();
+		timer = millis();
+	}
+	
 	// important! this is needed in order to receive messages  
 	oscSerial.listen();
-	
-	delay(100);
 	</loop>
 	
 	<functions>
-	
 	// send OSC Serial messages
 	void sendOscSerial() {
 		OscMessage msg("/outgoingSerial"); // this could be any pattern
 		msg.add(0);                        // this could be any data
 		oscSerial.send(msg);               
 	}
-	
-	
-	
 	</functions>
 </default>
 
