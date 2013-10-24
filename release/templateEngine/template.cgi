@@ -150,7 +150,7 @@ class Node:
         self.type = type
         
     def __eq__(self, other):
-        return self.name == other.name
+        return self.name == other.name and self.id == other.id
         
     def __str__(self):
         return "%s, %s, %s, %s" % (self.id, self.name, self.topcode, self.type)
@@ -317,7 +317,7 @@ class Code:
             # add this code to the right section 
             if whichOne == 'unique' and node not in self.nodesAdded:
                 # only add unique content the first time around 
-                self.unique[key] += content + "\n"
+                self.unique[key] += content + "\n"                
             if whichOne == 'always':
                 self.always[key] += content + "\n"
             if whichOne == 'default':
