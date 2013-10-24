@@ -181,6 +181,16 @@ class Code:
         result = result.replace("# ", "#")
         
         
+        # remove excess newlines
+        regex = re.compile("\n\n\n+") # match any groups of 3 or more newlines 
+        result = regex.sub("\n\n", result)
+        
+        # cleanup excess newlines around { and }
+        result = result.replace("{\n\n", "{\n")
+        result = result.replace("\n\n}", "\n}")   
+        
+        result = result.replace("    #", "#");     
+        
         return result
     
     #-------------------------------------------------------------------------------------
@@ -406,7 +416,7 @@ if __name__ == "__main__":
         sourcePath = os.path.join(templateDir, sourceFile)      
         
         file = open(sourcePath, 'w')        
-        source = code.generate()        
+        source = code.generate() 
         file.write(source)      
         file.close()
         
