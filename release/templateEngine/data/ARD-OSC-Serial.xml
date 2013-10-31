@@ -13,9 +13,7 @@
 	</imports>
 	<variables>
 	OscSerial oscSerial;
-	
     long timer;
-
 	</variables>
 	<setup>
 	oscSerial.begin(Serial);

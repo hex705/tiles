@@ -9,6 +9,7 @@
 	<variables>
 	OscUDP oscUdp;
 	NetAddress destination;
+	long netTimer;
 	</variables>
 	
 	<setup>
@@ -47,8 +48,12 @@
 	<variables></variables>
 	<setup></setup>
 	<loop>
+    //  limits sends to every 100 mS
+	if ( millis() - netTimer > 100){
+		sendOscNet();
+		netTimer = millis();
+	}
 
-	sendOscNet();
 	
 	// important! this is needed in order to receive messages  
 	oscUdp.listen(); 
