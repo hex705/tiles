@@ -18,7 +18,7 @@
 	byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 	
 	// listening IP ==  SHIELD initialization IP
-	// WHITE you need to set this -- > stick on shield
+	// WHITE you need to set this -- > sticker on shield
 	// BLUE COMMENT THIS OUT
 	IPAddress ip(192, 168, 0, 180); 
 	
@@ -39,9 +39,11 @@
 	Ethernet.begin(mac,ip);
 	
 	// BLUE use this
-	Ethernet.begin(mac);
+	//Ethernet.begin(mac);
+	
 	// start UDP object, listening on port listeningPort
-	UDP.begin(listeningPort)  	
+	UDP.begin(listeningPort);
+		
 	// display IP in serial debug (uncomment to use)
 	// Serial.begin(9600);
 	// Serial.println(Ethernet.localIP());
