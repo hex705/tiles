@@ -36,6 +36,9 @@
 	Ethernet.begin(mac,ip);
 	// start UDP object, listening on port listeningPort
 	UDP.begin(listeningPort)  	
+	// display IP in serial debug (uncomment to use)
+	// Serial.begin(9600);
+	// Serial.println(Ethernet.localIP());
 	</setup>
 	
 	<loop>
