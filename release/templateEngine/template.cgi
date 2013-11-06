@@ -53,6 +53,9 @@ hubs = {} # contains tile names --> hub templates mappings
 templates = {} # contains tile names --> xml templates
 codes = {} # contains tile id --> code templates 
 
+# file attachments
+attachments = [] 
+
 #=========================================================================================
 def htmlHeaders():
     print 'Content-type: text/html\n\n' 
@@ -225,10 +228,13 @@ class Code:
                 debug("Found a hub, we're done")
                 break
             else:
-                # SPECIAL CASE: XBee nodes -- they don't add any code 
+                # SPECIAL CASE: XBee nodes -- they don't add any code, but a file should
+                # get included 
                 if node.name.find("xBee") != -1: 
-                    debug("--> Found an XBee node. Need to deal with this.")
-                    continue 
+                    if "xBee_setup.pdf" not in attachments: 
+                        attachments.append("xBee_setup.pdf");
+                        debug("Adding xBee setup attachment");
+	                continue 
 
                 # SPECIAL CASE:
                 # Arduino -> Serial -> Processing 
@@ -439,6 +445,13 @@ if __name__ == "__main__":
         xmlF = open(xmlOutPath, 'w')
         xmlF.write( ET.tostring(xml) )
         xmlF.close()
+    
+    # include any attachments ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    for attachment in attachments:
+        attPath = os.path.join("data", attachment)
+        # copy(src, dst)
+        debug("Copying %s to template directory" % attPath)
+        shutil.copy(attPath, os.path.join(projectDir, attachment))
     
     
     # zip it all ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
