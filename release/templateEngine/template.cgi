@@ -38,6 +38,8 @@ import jsbeautifier
 # otherwise False when used as a CGI script 
 debugMode = False
 
+xBee_attachment = "xBeeSetup.html"
+
 #=========================================================================================
 def zipdir(path, zip):
     for root, dirs, files in os.walk(path):
@@ -231,9 +233,9 @@ class Code:
                 # SPECIAL CASE: XBee nodes -- they don't add any code, but a file should
                 # get included 
                 if node.name.find("xBee") != -1: 
-                    if "xBee_setup.pdf" not in attachments: 
-                        attachments.append("xBee_setup.pdf");
-                        debug("Adding xBee setup attachment");
+                    if xBee_attachment not in attachments: 
+                        attachments.append(xBee_attachment);
+                        debug("Adding file " + xBee_attachment);
 	                continue 
 
                 # SPECIAL CASE:
