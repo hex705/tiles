@@ -231,16 +231,17 @@ class Code:
                 break
             else:
                 # SPECIAL CASE: XBee nodes -- they don't add any code, but a file should
-                # get included 
-                if node.name.find("xBee") != -1: 
+                # get included                 
+                if node.name.find("xBee") != -1:  
                     if xBee_attachment not in attachments: 
                         attachments.append(xBee_attachment);
                         debug("Adding file " + xBee_attachment);
-	                continue 
+                    continue 
 
                 # SPECIAL CASE:
                 # Arduino -> Serial -> Processing 
-                if node.name != "OSC" and node.name.find(self.hubPrefix) == -1:
+                # quick fix to handle xBee nodes as well...
+                if node.name != "OSC" and node.name.find("xBee") == -1 and node.name.find(self.hubPrefix) == -1:
                     debug("Our hub is %s but we're now into tile %s, so we're done" % (self.hubPrefix, node.name))
                     break
                 
