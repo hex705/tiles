@@ -6,11 +6,18 @@
 	<imports>
 	import oscP5.*;
 	</imports>
-	
+
+    <variables>
+	int serialTimerEnd;
+	int serialTimerInterval = 250;
+	</variables>
+		
+			
 	<functions>		
     // listen for ALL incoming OSC messages
 	void oscEvent(OscMessage incoming) {
 		print(incoming);
+		int val0 = incoming.get(0).intValue();
 	}
 	</functions>
 	
@@ -29,7 +36,10 @@
 	</setup>
 
 	<loop>
-	sendOscSerial$OSC_SERIAL_COUNT();
+	if ( millis() >= serialTimerEnd ) {
+		sendOscSerial$OSC_SERIAL_COUNT();
+		serialTimerEnd = millis()+serialTimerInterval;
+    }
 	</loop>	 
 	
 	<functions>
@@ -41,7 +51,6 @@
 	}
    
 	</functions>
-	
 	
 </default>
 

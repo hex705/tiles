@@ -1,0 +1,189 @@
+# Configure and Use xBee radios #
+
+
+**IMPORTANT xbee radios are 3.3V devices DO NOT supply them with 5V!**
+
+All of our shields and explorer boards handle this for you.
+Breakouts need to be connected properly!!
+
+
+
+Like all networked devices xBee radios need to point at each other to communicate.
+
+We are using Series 1 point to point radios.  You can set them up in pairs or small groups.  They can all handle bi-directions (2-way) communication.
+
+You will need to configure several parameters before they will talk to each other.  There are multiple ways to complete the configuration.  This document will describe a processing using coolTerm terminal software. Windows users can also use x-ctu from digi (the radio manufacturer).
+
+
+
+
+## Download and Install ##
+
+[CoolTerm](http://freeware.the-meiers.org/) is available for free.
+
+http://freeware.the-meiers.org/
+
+@ the web page, scroll down to 'Very Useful Stuff' section and select your platform.
+
+
+##FTDI Driver##
+
+You will need an [FTDI VCP (virtual com port) driver](http://www.ftdichip.com/Drivers/VCP.htm) for the xBee explorer boards we will use for configuration.
+
+Install latest for your platform.  You may need a re-start.
+
+http://www.ftdichip.com/Drivers/VCP.htm
+
+
+
+##xBee Parameters to Configure##
+
+xBee parameters are set in hexadecimal
+
+**ID** ::  every xBee radio belongs to a network.  Each network should have a unique IDentity or ID.  Only radios on the same ID can talk to each other. ( Setting ID is analogous to selecting a WIFI network ).
+
+**MY** ::  every xBee radio has an a personal address (MY).  This is like an IP or phone number.  Every radio MY should be unique on any given ID (network).
+
+
+**DL** ::  Destination low.  Every xBee radio has a predefined destination.  The destination can be 'ffff' which is a broadcast state that lets a radio talk to every radio on its ID.  Or it can be paired to a specific MY address on its ID.
+
+**DH** :: we will leave this alone, but it should be 0.  You can check it when setting everything else.  DH is destination high and is used in special situations only.
+
+**BD** :: Baud rate of communication with your host (Arduino or Processing).  These are number indexed.
+
+	0 = 1200
+	1 = 2400
+	2 = 4800
+	3 = 9600
+	4 = 19200
+	5 = 38400
+	6 = 57600
+	7 = 115200
+
+**WR** ::  write the settings to memory -- they will be saved even if powered off.
+
+
+
+**More details can be found at:**
+
+[http://hex705.wordpress.com/2008/11/07/xbee-configuring-the-radios/](http://hex705.wordpress.com/2008/11/07/xbee-configuring-the-radios/)
+
+[http://www.ladyada.net/make/xbee/ref.html](http://www.ladyada.net/make/xbee/ref.html) 
+
+
+
+##Connect and Configure:##
+
+Get an xBee explorer (red board) and cable.  With power disconnected, seat the xBee radio matching the white guide lines. 
+Connect power -- a red LED near the cable should glow.  Now open the terminal software.
+
+1. Open coolTerm
+2. Click OPTIONS icon
+3. Under Terminal (on left), select Local Echo
+4. Under Serial Port ::  Click to expand the PORT drop down menu
+5. You should see a serial port of the usbSerial-XXXX variety.  This will be your red explorer board, select it.
+6. Select Baudrate 9600. (you may need to test other bauds to successfully connect).
+7. select OK to close Options Window.
+8. Click CONNECT icon at top of screen.
+
+If you were successful you will see the 'LEDs' at the bottom right glow green.  You will also get a connected message with a timer in the lower Left.
+
+If you were not successful, reopen options, change the BAUD (6) above, <ok> and reconnect. Bauds 2400, 9600, 19200, 28800, 115200 are common.  But you may need to try them all!
+
+
+Once connected you can configure.
+
+
+##Configure the Radio##
+
+By Default xBee radios are in TRANSMIT mode.  This is the mode that lets them talk to each other.  We need to place them in COMMAND mode temporarily.  Once in COMMAND mode we can query and set parameters.
+
+For all of the following, type the characters in between the < > , ENTER = enter key.
+
+
+**To enter command mode**
+
+<+++>
+(do not press enter!, just wait a moment)
+
+you should get OK back from the radio.  You are now in command mode and will stay in it for about 10 seconds.
+every time you enter a command you reset the clock and get another 10 seconds.  To leave command mode wait for the time out to expire (10sec).
+
+
+**To Query a parameter:** 
+
+Type the parameter name proceeded by AT.  
+
+eg to see the ID of a radio:
+
+`<AT> <ID> <ENTER>`
+	
+radio returns its ID
+
+
+**Set a parameter:**
+
+Type `<AT> <parameter name> <new value>`
+
+`<ATID23> <ENTER>`
+	
+sets the radio ID to 23
+
+`<ATID> <ENTER>`
+	
+radio now returns 23
+
+
+###Set up your radio:###
+
+Decide on ID (network ID)
+
+Decide on MY for each radio
+
+Set DL to MY for the radio is needs to talk to (ffff for all radios on the ID)
+
+
+
+**eg** I have 2 radios (MY 200,and MY 300) that I want to put on ID 1201.
+
+first radio type the following (responses included after the // do not type this part):
+
+Radio 1:
+
+	<+++>					// OK
+	<atid 1201> <ENTER> 	// Ok
+	<atid> 		<ENTER>		// 1201
+	<atmy 200> 	<ENTER>     // OK
+	<atmy>		<ENTER>		// 200
+	<atdl 300> 	<ENTER>		// OK
+	<atdl>  	<ENTER>		// 300
+	<atwr>  	<ENTER>     //     this writes your settings to xBee memory
+
+Radio 2:
+
+	<+++>					// OK
+	<atid 1201> <ENTER> 	// OK
+	<atid> 		<ENTER>		// 1201
+	<atmy 300> 	<ENTER>     // OK
+	<atmy>		<ENTER>		// 300
+	<atdl 200> 	<ENTER>		// OK
+	<atdl>  	<ENTER>		// 200
+	<atwr>  	<ENTER>     //     this writes your settings to xBee memory
+
+
+These should now be ready to communicate.
+
+
+Other configs are possible -- do not use this ID FOR projects.
+
+
+
+
+
+
+
+
+
+
+
+

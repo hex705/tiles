@@ -9,7 +9,8 @@
 	<variables>
 	OscUDP oscUdp;
 	NetAddress destination;
-	long netTimer;
+	long netTimerEnd;
+	long netTimerInterval = 100;
 	</variables>
 	
 	<setup>
@@ -21,6 +22,8 @@
 	<functions>
 	// listen for All OSC messages here
 	void oscEvent(OscMessage &amp;msg) {
+		// handle data here 
+		// OR
 		// route messages using the "plug" functionality
 		
 		// this example redirects messages called "/incoming" to myFunction (below) 
@@ -49,9 +52,9 @@
 	<setup></setup>
 	<loop>
     //  limits sends to every 100 mS
-	if ( millis() - netTimer > 100){
+	if ( millis() >= netTimerEnd){
 		sendOscNet();
-		netTimer = millis();
+		netTimerEnd = millis()+netTimerInterval;
 	}
 
 	

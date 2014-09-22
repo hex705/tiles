@@ -1,0 +1,7 @@
+#!/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python
+#
+# Stub script to run jsbeautifier
+#
+import sys
+from jsbeautifier import main
+sys.exit(main())

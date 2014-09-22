@@ -13,7 +13,8 @@
 	</imports>
 	<variables>
 	OscSerial oscSerial;
-    long timer;
+    long serialTimerEnd;
+	long serialTimerInterval = 100;
 	</variables>
 	<setup>
 	oscSerial.begin(Serial);
@@ -23,6 +24,8 @@
 	<functions>
     // incoming messages will arrive here
 	void oscEvent(OscMessage &amp;msg) {
+		// handle data here 
+		// OR
 		// route messages using the "plug" functionality
 		
 		// this example redirects messages called "/incoming" to myFunction (below) 
@@ -52,9 +55,9 @@
 	<setup></setup>
 	<loop>
 	//  limits sends to every 100 mS
-	if ( millis() - timer > 100){
+	if ( millis() >= serialTimerEnd){
 		sendOscSerial();
-		timer = millis();
+		serialTimerEnd = millis()+serialTimerInterval;
 	}
 	
 	// important! this is needed in order to receive messages  

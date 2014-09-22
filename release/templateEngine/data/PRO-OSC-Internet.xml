@@ -9,7 +9,9 @@
 	
 	<variables>
 	OscP5 oscNet; 
-	int listeningPort = 12000;		
+	int listeningPort = 12000;
+	int netTimerEnd;
+	int netTimerInterval = 250;
 	</variables>
 	
 	<setup>	
@@ -34,7 +36,10 @@
 	</variables>
 	
 	<loop> 
-	sendOscNet$OSC_NET_COUNT();	// send to network destination$OSC_NET_COUNT
+	if (millis() >= netTimerEnd) {
+		sendOscNet$OSC_NET_COUNT();	// send to network destination$OSC_NET_COUNT
+		netTimerEnd = millis()+netTimerInterval;
+	}
 	</loop>
 	
 	<setup>
