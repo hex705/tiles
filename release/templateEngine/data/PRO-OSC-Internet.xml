@@ -23,8 +23,10 @@
 	void oscEvent(OscMessage incoming) {
 		// all the received messages come here
 		println(incoming);
+	    int val0 = incoming.get(0).intValue();	
 	}
 	</functions>	
+	
 </unique>
 
 <always>
