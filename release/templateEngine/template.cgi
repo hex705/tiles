@@ -335,8 +335,12 @@ class Code:
 
             # add this code to the right section 
             if whichOne == 'unique' and node not in self.nodesAdded:
-                # only add unique content the first time around 
-                self.unique[key] += content + "\n"                
+            	# check to make sure the text isn't already contained 
+            	if self.unique[key].find(content) == -1:
+	                # only add unique content the first time around 
+    	            self.unique[key] += content + "\n"                
+    	        else:
+    	        	debug("duplicate content found from unique nodes: " + content)
             if whichOne == 'always':
                 self.always[key] += content + "\n"
             if whichOne == 'default':

@@ -14,10 +14,11 @@
 		
 			
 	<functions>		
-    // listen for ALL incoming OSC messages
+	// Listen for ALL OSC messages
 	void oscEvent(OscMessage incoming) {
-		print(incoming);
-		int val0 = incoming.get(0).intValue();
+		// all the received messages come here
+		println(incoming);
+	    int val0 = incoming.get(0).intValue();	
 	}
 	</functions>
 	
